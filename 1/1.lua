@@ -1,41 +1,52 @@
 -- 1
 --
 
-engine.name = "ID1"
+-- engine.name = "ID1"
 
 softcut_loop_starts = {1,1,1,1,1,1}
 softcut_loop_ends = {60,60,60,60,60,60}
 loop_beats = 8
 update_ui=false
 
+-- constants
+
 -- WAVEFORMS
-local interval = 0
-waveform_samples = {}
-scale = 30
+waveform_samples = {{}}
+waveform_loaded=false
+current_positions={1,1,1,1,1,1}
 
 function init()
-	engine.amp1(0.5)
-	engine.amp2(0.5)
-	engine.amp3(0.25)
-	engine.amp4(0.5)
-	engine.amp5(1)
+	-- engine.amp1(0.5)
+	-- engine.amp2(0.5)
+	-- engine.amp3(0.25)
+	-- engine.amp4(0.5)
+	-- engine.amp5(1)
+
 
   updater = metro.init()
-  updater.time = 0.05
+  updater.time = 0.1
   updater.count = -1
   updater.event = update_screen
   updater:start()
 	reset_softcut()
+  softcut.event_phase(update_positions)
+  softcut.event_render(on_render)
+  softcut.poll_start_phase()
+end
+
+function update_positions(i,x)
+  current_positions[i] = x
 end
 
 function update_screen()
+  softcut.render_buffer(1, 1, clock.get_beat_sec()*loop_beats*3+1, 128)
+  softcut.render_buffer(2, 1, clock.get_beat_sec()*loop_beats*3+1, 128)
 	redraw()
-	softcut.render_buffer(1, 1, clock.get_beat_sec()*loop_beats*6+6, 128)
 end
 
 function on_render(ch, start, i, s)
-  waveform_samples = s
-  interval = i
+  waveform_samples[ch] = s
+  waveform_loaded = true 
 end
 
 function reset_softcut()
@@ -43,21 +54,28 @@ function reset_softcut()
 	loop_length = clock.get_beat_sec()*loop_beats
 	softcut.reset()
 	for i=1,6 do
-		loop_start = loop_start + loop_length+1
+    softcut.enable(i,1)
 
     softcut.level(i,0.5)
     if i%2==1 then
-  	  softcut.pan(i,1)
+      softcut.pan(i,1)
+      softcut.buffer(i,1)
+      softcut.level_input_cut(1,i,1)
+      softcut.level_input_cut(2,i,0)
     else
-	    softcut.pan(i,-1)
+      softcut.pan(i,-1)
+      softcut.buffer(i,2)
+      softcut.level_input_cut(1,i,0)
+      softcut.level_input_cut(2,i,1)
     end
-    softcut.enable(i,1)
 
-    softcut.rec(i,0)
+    softcut.rec(i,1)
     softcut.play(i,1)
     softcut.rate(i,1)
     softcut.loop_start(i,loop_start)
     softcut.loop_end(i,loop_start+loop_length)
+    softcut_loop_starts[i] = loop_start
+    softcut_loop_ends[i] = loop_start+loop_length
     softcut.loop(i,1)
 
     softcut.level_slew_time(i,0.4)
@@ -65,8 +83,7 @@ function reset_softcut()
 
     softcut.rec_level(i,1.0)
     softcut.pre_level(i,0.5)
-    softcut.buffer(i,1)
-    softcut.position(i,1)
+    softcut.position(i,loop_start)
     softcut.phase_quant(i,0.025)
 
     softcut.post_filter_dry(i,0.0)
@@ -78,29 +95,56 @@ function reset_softcut()
     softcut.pre_filter_lp(i,1.0)
     softcut.pre_filter_rq(i,1.0)
     softcut.pre_filter_fc(i,20100)
+    -- iterate
+    if i==2 or i==4 then
+      loop_start = loop_start + loop_length+0.5
+    end
   end
 end
 
 
 function key(k,z)
-	if k==2 then 
-		engine.amp1(1)
-	else
-		engine.amp1(0)
-	end
+
 end
 
 
 function redraw()
-  screen.level(4)
-  local x_pos = 0
-  for i,s in ipairs(waveform_samples) do
-    local height = util.round(math.abs(s) * 32)
-    screen.move(util.linlin(0,128,10,120,x_pos), 35 - height)
-    screen.line_rel(0, 2 * height)
-    screen.stroke()
-    x_pos = x_pos + 1
+  screen.clear()
+  screen.level(15)
+  screen.move(64,32)
+  screen.text_center("hold K1 to load sample")
+  local positions = {}
+  for i,p in ipairs(current_positions) do 
+    local frac = math.ceil(i/2-1)/3
+    positions[i] = util.round(util.linlin(softcut_loop_starts[i],softcut_loop_ends[i],math.ceil(i/2-1)/3*128,math.ceil(i/2)/3*128,p))
   end
+  local waveform_height = 40
+  if waveform_loaded then
+    for i,s in ipairs(waveform_samples[1]) do
+      if i==positions[1] or i==positions[2] or i==positions[3] or i==positions[4] or i==positions[5] or i==positions[6] then 
+        screen.level(15)
+      else
+        screen.level(1)
+      end
+      local height = util.round(math.abs(s) * waveform_height/2)
+      screen.move(i,  64-waveform_height/2)
+      screen.line_rel(0, height)
+      screen.stroke()
+    end
+    screen.level(1)
+    for i,s in ipairs(waveform_samples[2]) do
+      if i==positions[1] or i==positions[2] or i==positions[3] or i==positions[4] or i==positions[5] or i==positions[6] then 
+        screen.level(15)
+      else
+        screen.level(1)
+      end
+      local height = util.round(math.abs(s) * waveform_height/2)
+      screen.move(i, 64-waveform_height/2)
+      screen.line_rel(0, -1*height)
+      screen.stroke()
+    end
+  end
+  screen.update()
 end
 
 
