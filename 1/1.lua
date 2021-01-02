@@ -30,14 +30,16 @@ modulators = {
   {name="bass",engine="amp3",max=0.5},
   {name="bass note",engine="midinote",min=12,max=60,interval=1,default=29},
   {name="drums",engine="amp4",max=0.5},
-  {name="kick",engine="amp5",max=0.5,default=0.2},
+  {name="kick",engine="amp5",max=0.5},
   {name="bongo",engine="amp6",max=0.5},
+  -- add another engine here!
+--------- STOP CHANGING CODE unless you want to :) ---------
+
   -- put loops in the city
   {name="loop1",max=0.5,default=0.5},
   {name="loop2",max=0.5,default=0.3},
   {name="loop3",max=0.5,default=0.2},
 }
---------- STOP CHANGING CODE unless you want to :) ---------
 
 -- state
 update_ui=false
