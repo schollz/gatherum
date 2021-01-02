@@ -30,7 +30,7 @@ modulators = {
   {name="bass",engine="amp3",max=0.5},
   {name="bass note",engine="midinote",min=12,max=60,interval=1,default=29},
   {name="drums",engine="amp4",max=0.5},
-  {name="kick",engine="amp5",max=0.5},
+  {name="kick",engine="amp5",max=0.5,default=0.2},
   {name="bongo",engine="amp6",max=0.5},
   -- put loops in the city
   {name="loop1",max=0.5,default=0.5},
@@ -116,7 +116,7 @@ function init()
       type='control',
       id='loop'..i,
       name='level',
-      controlspec=controlspec.new(0,0.5,'lin',0.01,0.5,''),
+      controlspec=controlspec.new(0,0.5,'lin',0.01,modulators[#modulators-(3-i)].default,''),
       action=function(value)
         softcut.level(i*2,value)
         softcut.level(i*2-1,value)
@@ -128,7 +128,7 @@ function init()
       name='start',
       controlspec=controlspec.new(1,loop_max_beats-1,'lin',1,1,'beats'),
       action=function(value)
-        local loop_length = clock.get_beat_sec()*(value-1)
+        local loop_length = clock.get_beat_sec()*value
         softcut.loop_start(i*2,softcut_loop_starts[i*2]+loop_length)
         softcut.loop_start(i*2-1,softcut_loop_starts[i*2-1]+loop_length)
       end
@@ -188,6 +188,11 @@ function init()
   audio.level_eng_cut(0)
   audio.level_adc_cut(1)
   audio.level_tape_cut(1)
+
+  -- more defaults
+  params:set("1erase",5)
+  params:set("2erase",15)
+  params:set("3erase",10)
 end
 
 function update_positions(i,x)
