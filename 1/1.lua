@@ -23,7 +23,7 @@ modulators = {
   {name="birds",para="1engine",engine="amp1"},
   {name="bells",para="2engine",engine="amp2"},
   {name="bass",para="3engine",engine="amp3"},
-  {name="bass note",para="3enginenote",engine="notescale"},
+  {name="bass note",para="3enginenote",engine="notescale",default=0.5},
   {name="drums",para="4engine",engine="amp4"},
   {name="kick",para="5engine",engine="amp5"},
   {name="bongo",para="6engine",engine="amp6"},
@@ -68,11 +68,15 @@ function init()
   params:add_separator("engine")
   for _,m in ipairs(modulators) do 
     if m.engine ~= nil then 
+      local default_value = m.default
+      if default_value == nil then 
+        default_value = 0.0
+      end
       params:add {
         type='control',
         id=m.para,
         name=m.name,
-        controlspec=controlspec.new(0,1,'lin',0,0,'',0.01),
+        controlspec=controlspec.new(0,0.5,'lin',0,default_value,'',0.01),
         action=function(value)
           local f=load("engine."..m.engine.."("..value..")")
           f()
@@ -152,6 +156,12 @@ function init()
 
   -- params:set("1rec",1)
   -- params:set("5engine_modulator",0.15)
+  params:set("1erase",10)
+  params:set("2erase",20)
+  params:set("3erase",25)
+  params:set("1level",0.5)
+  params:set("2level",0.3)
+  params:set("3level",0.2)
 end
 
 function update_positions(i,x)
@@ -242,31 +252,6 @@ function key(k,z)
   end
 end
 
-function draw_bar(x,y,w,h,v,highlight,name)
-  -- (x,y) midpoint of bottom
-  -- w = width
-  -- h = max height
-  -- v = [0,1]
-
-  if highlight then 
-    screen.level(15)
-  else
-    screen.level(1)
-  end
-  screen.rect(x-w/2,y-v*h,w,v*h)
-  screen.fill()
-  screen.level(0)
-  -- w = math.floor(w/3)
-  -- screen.rect(x-w/2,y-v*h+2,w,v*h-4)
-  -- screen.fill()
-  -- if highlight then 
-  --   screen.level(15)
-  -- else
-  --   screen.level(1)
-  -- end 
-  -- screen.move(x,y-1)
-  -- screen.text_center_rotate(x-4,y-16,name,-90)
-end
 
 function redraw()
   screen.clear()
@@ -287,7 +272,7 @@ function redraw()
     v = 0.0
     name = ""
     highlight = i==ui_choice_mod
-    v = params:get(m.para)
+    v = params:get(m.para)/0.5
     name = m.name
     if highlight then 
       screen.level(15)
@@ -326,7 +311,7 @@ function redraw()
         else
           screen.level(1)
         end
-        local height = util.clamp(0,waveform_height,util.round(math.abs(s) * waveform_height*2))
+        local height = util.clamp(0,waveform_height,util.round(math.abs(s) * waveform_height))
         screen.move(i,  58-waveform_height/2)
         screen.line_rel(0, (j*2-3)*height)
         screen.stroke()
