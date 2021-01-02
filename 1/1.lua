@@ -6,18 +6,26 @@ local Formatters=require 'formatters'
 
 engine.name = "ID1"
 
+-- things to customize
+loop_max_beats = 16
+engine_modulators = {"amp1","amp2","amp3","amp4","amp5"}
+
+
+-- state
+update_ui=false
 softcut_loop_starts = {1,1,1,1,1,1}
 softcut_loop_ends = {60,60,60,60,60,60}
-loop_max_beats = 16
-update_ui=false
-
--- constants
+ui_choice_sample = 1
+ui_choice_engine = 1
 
 -- WAVEFORMS
 waveform_samples = {{}}
 current_positions={1,1,1,1,1,1}
 
 function init()
+  norns.enc.sens(2,4) 
+  norns.enc.sens(3,4) 
+
 	engine.amp1(0.0)
 	engine.amp2(0.0)
 	engine.amp3(0.0)
@@ -36,14 +44,14 @@ function init()
   softcut.poll_start_phase()
 
   params:add_separator("engine")
-  for i=1,5 do 
+  for i=1,#engine_modulators do 
     params:add {
       type='control',
-      id=i..'a',
-      name='a'..i,
+      id=i..'engine_modulator',
+      name=engine_modulators[i],
       controlspec=controlspec.new(0,1,'lin',0,0,'',0.01),
       action=function(value)
-        local f=load("engine.amp"..i.."("..value..")")
+        local f=load("engine."..engine_modulators[i].."("..value..")")
         f()
       end
     }
@@ -52,6 +60,16 @@ function init()
   -- add params
   for i=1,3 do 
     params:add_separator("loop "..i)
+    params:add {
+      type='control',
+      id=i..'level',
+      name='level',
+      controlspec=controlspec.new(0,1,'lin',0.01,1,''),
+      action=function(value)
+        softcut.level(i*2,value)
+        softcut.level(i*2-1,value)
+      end
+    }
     params:add {
       type='control',
       id=i..'start',
@@ -108,7 +126,8 @@ function init()
     }
   end
 
-  params:set("1rec",1)
+  params:set("1rec",0)
+  params:set("1engine_modulator",0)
 end
 
 function update_positions(i,x)
@@ -183,8 +202,24 @@ function reset_softcut()
 end
 
 
+function enc(k,d)
+  if k==2 then 
+    ui_choice_engine = sign_cycle(ui_choice_engine,d,1,#engine_modulators+3)
+  elseif k==3 then 
+    if ui_choice_engine <= #engine_modulators then
+      params:set(ui_choice_engine.."engine_modulator",util.clamp(params:get(ui_choice_engine.."engine_modulator")+d/100,0,1))
+    else
+      local loop_num = ui_choice_engine-#engine_modulators
+      params:set(loop_num.."level",util.clamp(params:get(loop_num.."level")+d/100,0,1))
+    end
+  end
+end
 function key(k,z)
-  redraw()
+  if k==2 and z==1 then 
+    ui_choice_sample = sign_cycle(ui_choice_sample,z,1,3)
+  elseif k==3 and z==1 then 
+    params:set(ui_choice_sample.."rec",1-params:get(ui_choice_sample.."rec"))
+  end
 end
 
 function draw_bar(x,y,w,h,v,highlight,name)
@@ -199,29 +234,33 @@ function draw_bar(x,y,w,h,v,highlight,name)
   end
   screen.rect(x-w/2,y-v*h,w,v*h)
   screen.fill()
-  screen.move(x,y+8)
-  screen.text_center(name)
+  screen.level(0)
+  w = math.floor(w/3)
+  screen.rect(x-w/2,y-v*h+2,w,v*h-4)
+  screen.fill()
+  if highlight then 
+    screen.level(15)
+  else
+    screen.level(1)
+  end 
+  screen.move(x,y-1)
+  screen.text_center_rotate(x-4,y-16,name,-90)
 end
 
 function redraw()
   screen.clear()
-  screen.level(15)
-  
+
   -- draw engine bars
-  for i=1,5 do
-    draw_bar(6+(i-1)*12,18,4,18,params:get(i.."a"),true,"a"..i)
+  for i=1,#engine_modulators+3 do
+    if i<=#engine_modulators then 
+      draw_bar(8+(i-1)*13,30,3,30,params:get(i.."engine_modulator"),i==ui_choice_engine,engine_modulators[i])
+    else
+      local j = i-#engine_modulators
+      draw_bar(8+(i-1)*13,30,3,30,params:get(j.."level"),i==ui_choice_engine,"loop"..j)
+    end
   end
   -- show samples
   screen.level(15)
-  for i=1,3 do 
-    if params:get(i.."rec")==1 then
-      screen.level(15)
-    else
-      screen.level(1)
-    end
-    screen.rect(1+42*(i-1),30,42,64-30)
-    screen.stroke()
-  end
 
   local waveform_height = 26  
 
@@ -237,7 +276,17 @@ function redraw()
         if i==1 or i==1+42 or i==1+42+42 or i>=127 then 
           goto continue 
         end
+        local highlight = false
         if i==positions[1] or i==positions[2] or i==positions[3] or i==positions[4] or i==positions[5] or i==positions[6] then 
+          highlight = true
+        end
+        for k=1,3 do 
+          if params:get(k.."rec")==1 and i > 42*(k-1) and i <= 42*k then 
+            highlight = not highlight
+            break
+          end
+        end
+        if highlight then 
           screen.level(15)
         else
           screen.level(1)
@@ -250,14 +299,27 @@ function redraw()
       end
     end
   end
-  -- for i=1,3 do
-  --   screen.level(15)
-  --   screen.move(3+42*(i-1),37)
-  --   screen.text(i)
-  -- end
+  screen.level(1)
+  screen.move(14+42*(ui_choice_sample-1),64)
+  screen.line_rel(14,0)
+  screen.stroke()
   screen.update()
 end
 
+
+function sign_cycle(value,d,min,max)
+  if d > 0 then 
+    value = value + 1 
+  elseif d < 0 then 
+    value = value - 1
+  end
+  if value > max then 
+    value = min
+  elseif value < min then 
+    value = max
+  end
+  return value
+end
 
 
 function rerun()
