@@ -1,5 +1,17 @@
-// CroneEngine_TestSine
-// dumbest possible test: a single, mono sinewave
+// Engine_ID1
+// sctweet loops
+
+// testing in supercollider ide
+// ({
+// 	var amp=0.4;
+// 	var amplag = 0.02;
+// 	var bpm=120;
+// 		var amp_,  snd;
+// 		amp_ = Lag.ar(K2A.ar(amp), amplag);
+//      // <-- INSERT SOUND CODE HERE -->
+//      // snd = ??????????
+// 	[snd.scope,snd]
+// }.play)
 
 // Inherit methods from CroneEngine
 Engine_ID1 : CroneEngine {
@@ -9,6 +21,7 @@ Engine_ID1 : CroneEngine {
 	var <synth3;
 	var <synth4;
 	var <synth5;
+	var <synth6;
 
 	// Define a class method when an object is created
 	*new { arg context, doneCallback;
@@ -19,7 +32,7 @@ Engine_ID1 : CroneEngine {
 	// Defined as an empty method in CroneEngine
 	// https://github.com/monome/norns/blob/master/sc/core/CroneEngine.sc#L31
 	alloc {
-		// birds
+		// birds, adapted from https://twitter.com/aucotsi/status/408981450994638848
 		synth1 = {
 			arg amp=0.0, amplag=0.02;
 			var amp_, snd;
@@ -29,7 +42,7 @@ Engine_ID1 : CroneEngine {
 			snd
 		}.play(target: context.xg);
 
-		// bells
+		// bells, adapted from https://twitter.com/joshpar/status/100417407021092864
 		synth2 = {
 			arg amp=0.0, amplag=0.02;
 			var amp_, snd;
@@ -40,12 +53,13 @@ Engine_ID1 : CroneEngine {
 			snd
 		}.play(target: context.xg);
 
-		// bass
+		// bass, adapted from https://sccode.org/1-55m
 		synth3 = {
-			arg amp=1.0, amplag=0.02, bpm=120, hz=32.703;
-			var amp_, hz_, snd, pulse, bass, lfo;
+			arg amp=0.0, amplag=0.02, bpm=120, notescale=0.0;
+			var amp_, notescale_, hz_, snd, pulse, bass, lfo;	
 			amp_ = Lag.ar(K2A.ar(amp), amplag);
-			hz_ = Lag.ar(K2A.ar(hz), amplag);
+			notescale_ = Lag.ar(K2A.ar(notescale), amplag);
+			hz_ = (notescale_*11+24).round.midicps;
 
 			pulse = Decay2.ar(Impulse.ar(bpm/60), 0.01, 1)*SinOsc.ar(hz_,mul:0.25);
 			bass = Splay.ar(SinOscFB.ar(hz_, 1.5));
@@ -57,7 +71,7 @@ Engine_ID1 : CroneEngine {
 			[snd,snd]
 		}.play(target: context.xg);
 
-		// drumbeat
+		// drumbeat, adapted from https://twitter.com/aucotsi/status/400603496140906496
 		synth4 = {
 			arg amp=0.5, amplag=0.02, bpm=120, hz=1300;
 			var amp_, hz_, snd;
@@ -71,13 +85,35 @@ Engine_ID1 : CroneEngine {
 	        snd
 		}.play(target: context.xg);
 
-		// kick
+		// kick, adapted from https://twitter.com/aucotsi/status/400603496140906496
 		synth5 = {
-			arg amp=0.5, amplag=0.02, bpm=120, hz=1300;
+			arg amp=0.0, amplag=0.02, bpm=120, hz=1300;
 			var amp_, hz_, snd;
 			amp_ = Lag.ar(K2A.ar(amp), amplag);
 
 			snd = Limiter.ar(SinOsc.ar(9*Pulse.ar(bpm/60/4),0,Pulse.kr(bpm/60/4)),level:amp_);
+
+			[snd,snd]
+		}.play(target: context.xg);
+
+		// bongo, adapted from https://twitter.com/awhillas/status/22165574690
+		synth6 = {
+			arg amp=0.0, amplag=0.02, bpm=120, hz=1300;
+			var amp_, hz_, snd;
+			amp_ = Lag.ar(K2A.ar(amp), amplag);
+
+		    snd = Pan2.ar(
+			Mix.new(
+				Limiter.ar(
+				SinOsc.ar(
+					[50,80,120,40],
+	                 0,
+					EnvGen.kr(
+						Env.perc(0.01,0.3),
+						Impulse.kr([2,2,3,1.5]*bpm/60/2)
+					)
+				),level:0.25)
+		    ),level:amp_);
 
 			[snd,snd]
 		}.play(target: context.xg);
@@ -87,6 +123,7 @@ Engine_ID1 : CroneEngine {
 			synth3.set(\bpm, msg[1]);
 			synth4.set(\bpm, msg[1]);
 			synth5.set(\bpm, msg[1]);
+			synth6.set(\bpm, msg[1]);
 		});
 
 		this.addCommand("amp1", "f", { arg msg;
@@ -101,16 +138,20 @@ Engine_ID1 : CroneEngine {
 			synth3.set(\amp, msg[1]);
 		});
 
+		this.addCommand("notescale", "f", { arg msg;
+			synth3.set(\notescale, msg[1]);
+		});
+
 		this.addCommand("amp4", "f", { arg msg;
 			synth4.set(\amp, msg[1]);
 		});
 
-		this.addCommand("hz4", "f", { arg msg;
-			synth4.set(\hz, msg[1]);
-		});
-
 		this.addCommand("amp5", "f", { arg msg;
 			synth5.set(\amp, msg[1]);
+		});
+
+		this.addCommand("amp6", "f", { arg msg;
+			synth6.set(\amp, msg[1]);
 		});
 	}
 	// define a function that is called when the synth is shut down
@@ -120,5 +161,6 @@ Engine_ID1 : CroneEngine {
 		synth3.free;
 		synth4.free;
 		synth5.free;
+		synth6.free;
 	}
 }

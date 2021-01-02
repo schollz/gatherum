@@ -23,8 +23,10 @@ modulators = {
   {name="birds",para="1engine",engine="amp1"},
   {name="bells",para="2engine",engine="amp2"},
   {name="bass",para="3engine",engine="amp3"},
+  {name="bass note",para="3enginenote",engine="notescale"},
   {name="drums",para="4engine",engine="amp4"},
   {name="kick",para="5engine",engine="amp5"},
+  {name="bongo",para="6engine",engine="amp6"},
   {name="loop1",para="1level"},
   {name="loop2",para="2level"},
   {name="loop3",para="3level"},
@@ -45,6 +47,7 @@ function init()
   norns.enc.sens(2,4) 
   norns.enc.sens(3,4) 
 
+  engine.bpm(clock.get_tempo())
 	engine.amp1(0.0)
 	engine.amp2(0.0)
 	engine.amp3(0.0)
@@ -354,13 +357,16 @@ function redraw()
     x = math.floor((ui_choice_mod-1)/(#modulators)*128)+2
     y = bar_position+bar_height
     screen.level(0)
-    if ui_choice_mod > #modulators/2 then 
+    if ui_choice_mod >= #modulators-1 then 
       x = math.floor((ui_choice_mod)/(#modulators)*128)-2
       screen.move(x,y)
       screen.text_right(modulators[ui_choice_mod].name)
-    else
+    elseif ui_choice_mod == 1 then 
       screen.move(x,y)
       screen.text(modulators[ui_choice_mod].name)
+    else
+      screen.move(x+w/2,y)
+      screen.text_center(modulators[ui_choice_mod].name)
     end
   else
     draw_colkol(100,bar_position)
