@@ -1,7 +1,7 @@
--- colkol v0.0.1
+-- downtown v0.0.1
 -- lift every voice
 --
--- llllllll.co/t/colkol
+-- llllllll.co/t/downtown
 --
 --
 --
@@ -23,7 +23,7 @@ modulators = {
   {name="birds",para="1engine",engine="amp1"},
   {name="bells",para="2engine",engine="amp2"},
   {name="bass",para="3engine",engine="amp3"},
-  {name="bass note",para="3enginenote",engine="notescale",default=0.5},
+  {name="bass note",para="3enginenote",engine="notescale"},
   {name="drums",para="4engine",engine="amp4"},
   {name="kick",para="5engine",engine="amp5"},
   {name="bongo",para="6engine",engine="amp6"},
@@ -36,12 +36,18 @@ modulators = {
 update_ui=false
 softcut_loop_starts = {1,1,1,1,1,1}
 softcut_loop_ends = {60,60,60,60,60,60}
+modulator_ordering = {}
 ui_choice_sample = 0
 ui_choice_mod = 0
+city_widths = {}
 
 -- WAVEFORMS
 waveform_samples = {{}}
 current_positions={1,1,1,1,1,1}
+-- drawing
+bar_position = 20
+waveform_height = 26  
+bar_height = 5
 
 function init()
   norns.enc.sens(2,4) 
@@ -54,7 +60,14 @@ function init()
 	engine.amp4(0.0)
 	engine.amp5(0.0)
 
+  modulator_ordering = {}
+  for i, _ in ipairs(modulators) do 
+    local pos = math.random(1,#modulator_ordering+1)
+    table.insert(modulator_ordering,pos,i)
+    city_widths[i] = util.clamp(gaussian(1,0.15),0.3,1)
+  end
 
+  -- setup the running clock
   updater = metro.init()
   updater.time = 0.1
   updater.count = -1
@@ -154,14 +167,14 @@ function init()
     }
   end
 
-  -- params:set("1rec",1)
-  -- params:set("5engine_modulator",0.15)
+  -- SET YOUR DEFAULTS!
   params:set("1erase",10)
   params:set("2erase",20)
   params:set("3erase",25)
   params:set("1level",0.5)
   params:set("2level",0.3)
   params:set("3level",0.2)
+  params:set("3enginenote",0.5)
 end
 
 function update_positions(i,x)
@@ -252,28 +265,26 @@ function key(k,z)
   end
 end
 
-
-function redraw()
-  screen.clear()
-
-  local bar_position = 20
-  local waveform_height = 26  
-  local bar_height = 5
-
-  -- draw engine bars
-  for i,m in ipairs(modulators) do
+function draw_building(i)
+    m = modulators[i]
+    v = params:get(m.para)/0.5
+    if v == 0 then 
+      do return end
+    end
     x = (i-1)*math.floor(128/(#modulators))+1
     y = bar_position
     w = math.floor(128/#modulators)+2
     if i==#modulators then 
       w = w -3
     end
+    w = city_widths[i]*w
     h = bar_position-1
-    v = 0.0
     name = ""
     highlight = i==ui_choice_mod
-    v = params:get(m.para)/0.5
     name = m.name
+    screen.level(0)
+    screen.rect(x,y-v*h,w,v*h)
+    screen.fill()
     if highlight then 
       screen.level(15)
     else
@@ -281,6 +292,44 @@ function redraw()
     end
     screen.rect(x,y-v*h,w,v*h)
     screen.stroke()
+
+    x = math.floor(x)
+    w = math.floor(w)
+    y = math.floor(y-v*h)
+    vh = math.floor(v*h)
+    math.randomseed(i)
+    xspacing=math.random(2,4)
+    yspacing=math.random(2,4)
+    xspacing2 = math.random(1,2)
+    density = math.random(20,90)/100.0
+    xpos = x + xspacing - xspacing2
+    ypos = y + yspacing
+    while ypos < y+vh do 
+      if xpos >= x+w then 
+        ypos = ypos + yspacing 
+        xpos = x + xspacing - xspacing2
+      else
+        if math.random() < density then
+          if xpos == x+w-1 then 
+            screen.pixel(xpos-1,ypos)
+          else
+            screen.pixel(xpos,ypos)
+          end
+          screen.fill()
+        end
+        xpos = xpos + xspacing        
+      end
+    end
+
+end
+
+function redraw()
+  screen.clear()
+
+  -- draw engine skyline
+  draw_godzilla()
+  for _,i in ipairs(modulator_ordering) do
+    draw_building(i)
   end
 
   -- show samples
@@ -341,6 +390,11 @@ function redraw()
   if ui_choice_mod > 0 then 
     x = math.floor((ui_choice_mod-1)/(#modulators)*128)+2
     y = bar_position+bar_height
+    w = math.floor(128/#modulators)+2
+    if ui_choice_mod==#modulators then 
+      w = w -3
+    end
+    w = city_widths[ui_choice_mod]*w
     screen.level(0)
     if ui_choice_mod >= #modulators-1 then 
       x = math.floor((ui_choice_mod)/(#modulators)*128)-2
@@ -350,71 +404,24 @@ function redraw()
       screen.move(x,y)
       screen.text(modulators[ui_choice_mod].name)
     else
-      screen.move(x+w/2,y)
+      screen.move(x+w/3,y)
       screen.text_center(modulators[ui_choice_mod].name)
     end
-  else
-    draw_colkol(100,bar_position)
   end
 
   screen.update()
 end
 
-function draw_colkol(x,y)
+function draw_godzilla()
   local pixels = {
-    {44,50},
-    {45,50},
-    {46,50},
-    {47,50},
-    {47,51},
-    {47,52},
-    {47,53},
-    {47,54},
-    {46,54},
-    {45,54},
-    {44,54},
-    {45,52},
-    {39,50},
-    {39,51},
-    {40,51},
-    {41,51},
-    {42,51},
-    {42,52},
-    {41,53},
-    {40,53},
-    {40,54},
-    {32,50},
-    {33,50},
-    {34,50},
-    {35,50},
-    {35,51},
-    {34,52},
-    {34,53},
-    {34,54},
-    {32,52},
-    {32,53},
-    {32,54},
-    {32,55},
-    {30,50},
-    {29,52},
-    {30,52},
-    {30,53},
-    {30,54},
-    {24,50},
-    {24,51},
-    {25,51},
-    {26,51},
-    {27,51},
-    {27,52},
-    {26,53},
-    {25,53},
-    {25,54},
+{114,0},{115,0},{116,0},{117,0},{118,0},{119,0},{120,0},{121,0},{122,0},{112,1},{113,1},{122,1},{124,1},{125,1},{126,1},{112,2},{119,2},{122,2},{123,2},{124,2},{126,2},{112,3},{113,3},{114,3},{115,3},{116,3},{117,3},{124,3},{126,3},{127,3},{128,3},{129,3},{117,4},{124,4},{125,4},{126,4},{129,4},{115,5},{116,5},{126,5},{127,5},{129,5},{114,6},{127,6},{128,6},{129,6},{130,6},{114,7},{115,7},{116,7},{117,7},{118,7},{123,7},{128,7},{129,7},{119,8},{123,8},{129,8},{130,8},{120,9},{121,9},{123,9},{130,9},{119,10},{120,10},{119,11},{121,11},{122,11},{122,12},{122,13},{123,13},{128,13},{129,13},{123,14},{124,14},{125,14},{127,14},{128,14},{122,15},{123,15},{127,15},{121,16},{127,16},{120,17},{121,17},{122,17},{126,17},{127,17},{128,17},{129,17},
   }
-  xmin = 24
-  ymin = 50
-  screen.level(0)
+  screen.level(1)
+  if ui_choice_mod == 0 then 
+    screen.level(15)
+  end
   for _, p in ipairs(pixels) do
-    screen.pixel(p[1]-xmin+x,p[2]-ymin+y)
+    screen.pixel(p[1],p[2]+1)
   end
   screen.fill()
 end
@@ -433,6 +440,10 @@ function sign_cycle(value,d,min,max)
   return value
 end
 
+function gaussian (mean, variance)
+    return  math.sqrt(-2 * variance * math.log(math.random())) *
+            math.cos(2 * math.pi * math.random()) + mean
+end
 
 function rerun()
   norns.script.load(norns.state.script)
