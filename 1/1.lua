@@ -8,7 +8,16 @@ engine.name = "ID1"
 
 -- things to customize
 loop_max_beats = 16
-engine_modulators = {"amp1","amp2","amp3","amp4","amp5"}
+modulators = {
+  {name="birds",para="1engine",engine="amp1"},
+  {name="bells",para="2engine",engine="amp2"},
+  {name="bass",para="3engine",engine="amp3"},
+  {name="drums",para="4engine",engine="amp4"},
+  {name="kick",para="5engine",engine="amp5"},
+  {name="loop1",para="1level"},
+  {name="loop2",para="2level"},
+  {name="loop3",para="3level"},
+}
 
 
 -- state
@@ -16,7 +25,7 @@ update_ui=false
 softcut_loop_starts = {1,1,1,1,1,1}
 softcut_loop_ends = {60,60,60,60,60,60}
 ui_choice_sample = 1
-ui_choice_engine = 1
+ui_choice_mod = 1
 
 -- WAVEFORMS
 waveform_samples = {{}}
@@ -44,17 +53,19 @@ function init()
   softcut.poll_start_phase()
 
   params:add_separator("engine")
-  for i=1,#engine_modulators do 
-    params:add {
-      type='control',
-      id=i..'engine_modulator',
-      name=engine_modulators[i],
-      controlspec=controlspec.new(0,1,'lin',0,0,'',0.01),
-      action=function(value)
-        local f=load("engine."..engine_modulators[i].."("..value..")")
-        f()
-      end
-    }
+  for _,m in ipairs(modulators) do 
+    if m.engine ~= nil then 
+      params:add {
+        type='control',
+        id=m.para,
+        name=m.name,
+        controlspec=controlspec.new(0,1,'lin',0,0,'',0.01),
+        action=function(value)
+          local f=load("engine."..m.engine.."("..value..")")
+          f()
+        end
+      }
+    end
   end
 
   -- add params
@@ -126,8 +137,8 @@ function init()
     }
   end
 
-  params:set("1rec",1)
-  params:set("5engine_modulator",0.15)
+  -- params:set("1rec",1)
+  -- params:set("5engine_modulator",0.15)
 end
 
 function update_positions(i,x)
@@ -204,16 +215,12 @@ end
 
 function enc(k,d)
   if k==2 then 
-    ui_choice_engine = sign_cycle(ui_choice_engine,d,1,#engine_modulators+3)
-  elseif k==3 then 
-    if ui_choice_engine <= #engine_modulators then
-      params:set(ui_choice_engine.."engine_modulator",util.clamp(params:get(ui_choice_engine.."engine_modulator")+d/100,0,1))
-    else
-      local loop_num = ui_choice_engine-#engine_modulators
-      params:set(loop_num.."level",util.clamp(params:get(loop_num.."level")+d/100,0,0.5))
-    end
+    ui_choice_mod = sign_cycle(ui_choice_mod,d,0,#modulators)
+  elseif k==3 and ui_choice_mod > 0 then 
+    params:set(modulators[ui_choice_mod].para,util.clamp(params:get(modulators[ui_choice_mod].para)+d/100,0,1))
   end
 end
+
 function key(k,z)
   if k==2 and z==1 then 
     ui_choice_sample = sign_cycle(ui_choice_sample,z,1,3)
@@ -227,6 +234,7 @@ function draw_bar(x,y,w,h,v,highlight,name)
   -- w = width
   -- h = max height
   -- v = [0,1]
+
   if highlight then 
     screen.level(15)
   else
@@ -235,41 +243,55 @@ function draw_bar(x,y,w,h,v,highlight,name)
   screen.rect(x-w/2,y-v*h,w,v*h)
   screen.fill()
   screen.level(0)
-  w = math.floor(w/3)
-  screen.rect(x-w/2,y-v*h+2,w,v*h-4)
-  screen.fill()
-  if highlight then 
-    screen.level(15)
-  else
-    screen.level(1)
-  end 
-  screen.move(x,y-1)
-  screen.text_center_rotate(x-4,y-16,name,-90)
+  -- w = math.floor(w/3)
+  -- screen.rect(x-w/2,y-v*h+2,w,v*h-4)
+  -- screen.fill()
+  -- if highlight then 
+  --   screen.level(15)
+  -- else
+  --   screen.level(1)
+  -- end 
+  -- screen.move(x,y-1)
+  -- screen.text_center_rotate(x-4,y-16,name,-90)
 end
 
 function redraw()
   screen.clear()
 
+  local bar_position = 20
+  local waveform_height = 26  
+  local bar_height = 5
+
   -- draw engine bars
-  for i=1,#engine_modulators+3 do
-    if i<=#engine_modulators then 
-      draw_bar(8+(i-1)*13,30,3,30,params:get(i.."engine_modulator"),i==ui_choice_engine,engine_modulators[i])
-    else
-      local j = i-#engine_modulators
-      draw_bar(8+(i-1)*13,30,3,30,params:get(j.."level"),i==ui_choice_engine,"loop"..j)
+  for i,m in ipairs(modulators) do
+    x = (i-1)*math.floor(128/(#modulators))+1
+    y = bar_position
+    w = math.floor(128/#modulators)+2
+    if i==#modulators then 
+      w = w -3
     end
+    h = bar_position-1
+    v = 0.0
+    name = ""
+    highlight = i==ui_choice_mod
+    v = params:get(m.para)
+    name = m.name
+    if highlight then 
+      screen.level(15)
+    else
+      screen.level(1)
+    end
+    screen.rect(x,y-v*h,w,v*h)
+    screen.stroke()
   end
+
   -- show samples
   screen.level(15)
-
-  local waveform_height = 26  
-
   local positions = {}
   for i,p in ipairs(current_positions) do 
     local frac = math.ceil(i/2-1)/3
     positions[i] = util.round(util.linlin(softcut_loop_starts[i],softcut_loop_ends[i],math.ceil(i/2-1)/3*128,math.ceil(i/2)/3*128,p))
   end
-
   if waveform_samples[1] ~=nil and waveform_samples[2] ~=nil then
     for j=1,2 do 
       for i,s in ipairs(waveform_samples[j]) do
@@ -292,7 +314,7 @@ function redraw()
           screen.level(1)
         end
         local height = util.clamp(0,waveform_height,util.round(math.abs(s) * waveform_height*2))
-        screen.move(i,  60-waveform_height/2)
+        screen.move(i,  58-waveform_height/2)
         screen.line_rel(0, (j*2-3)*height)
         screen.stroke()
         ::continue::
@@ -302,6 +324,37 @@ function redraw()
   screen.level(1)
   screen.move(14+42*(ui_choice_sample-1),64)
   screen.line_rel(14,0)
+  screen.stroke()
+
+  -- draw middle bar
+  screen.level(15)
+  screen.rect(0,bar_position,128,bar_height)
+  screen.fill()
+  screen.level(0)
+
+  -- label which modulator is selected
+  if ui_choice_mod > 0 then 
+    x = math.floor((ui_choice_mod-1)/(#modulators)*128)+2
+    y = bar_position+bar_height
+    screen.level(0)
+    if ui_choice_mod > #modulators/2 then 
+      x = math.floor((ui_choice_mod)/(#modulators)*128)-2
+      screen.move(x,y)
+      screen.text_right(modulators[ui_choice_mod].name)
+    else
+      screen.move(x,y)
+      screen.text(modulators[ui_choice_mod].name)
+    end
+  end
+
+
+  -- draw rect around current sample
+  if params:get(ui_choice_sample.."rec")==1 then 
+    screen.level(15)
+  else
+    screen.level(1)
+  end
+  screen.rect(1+42*(ui_choice_sample-1),bar_position+bar_height+1,43,64-bar_position-bar_height-1)
   screen.stroke()
   screen.update()
 end
