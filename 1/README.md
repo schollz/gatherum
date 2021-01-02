@@ -1,12 +1,12 @@
 ## downtown
 
-sounds around town.
+view downtown over the skyline. build skyscrapers or tear them down to change the sounds coming from the city. record and mix in your own sounds to join the city.
 
 ![Image](https://user-images.githubusercontent.com/6550035/103465225-7859a380-4cee-11eb-981d-bc571d9b152d.png)
 
-view downtown over the skyline. build skyscrapers or tear them down to change the sounds coming from the city. record and mix in your own sounds to join the city.
+https://vimeo.com/496475138
 
-cities are all alike and all different. like cities, this script welcomes changes. the engine is simply a collection supercollider tweets - you can [easily find more](https://twitter.com/search?q=SinOsc%20(%23supercollider%20OR%20%23sc%20OR%20%23sctweet)&src=typed_query&f=live). find one you like and [add it as a new tower int the city]().
+all cities are alike and all cities are different. like cities, this script welcomes change. the towers are built from supercollider tweets - you can [easily find more](https://twitter.com/search?q=SinOsc%20(%23supercollider%20OR%20%23sc%20OR%20%23sctweet)&src=typed_query&f=live). find one you like and [add it as a new tower in the city](https://github.com/schollz/infinitedigits/tree/master/1#new-towers). i welcome prs if you'd like to share your tower with this script.
 
 ### Requirements
 
