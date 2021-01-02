@@ -74,6 +74,16 @@ function init()
         softcut.loop_end(i*2-1,softcut_loop_starts[i*2-1]+loop_length)
       end
     }
+    params:add {
+      type='control',
+      id=i..'erase',
+      name='erase (each loop)',
+      controlspec=controlspec.new(0,100,'lin',1,0,'%'),
+      action=function(value)
+        softcut.pre_level(i*2,(1-value/100))
+        softcut.pre_level(i*2-1,(1-value/100))
+      end
+    }
     params:add{ type='binary', name="record",id=i..'rec', behavior='toggle', action=function(v) 
       softcut.rec_level(i*2,v)
       softcut.rec_level(i*2-1,v)
@@ -232,7 +242,7 @@ function redraw()
         else
           screen.level(1)
         end
-        local height = util.round(math.abs(s) * waveform_height)
+        local height = util.clamp(0,waveform_height,util.round(math.abs(s) * waveform_height*2))
         screen.move(i,  60-waveform_height/2)
         screen.line_rel(0, (j*2-3)*height)
         screen.stroke()
