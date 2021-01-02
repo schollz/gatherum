@@ -1,5 +1,16 @@
--- 1
+-- colkol v0.0.1
+-- lift every voice
 --
+-- llllllll.co/t/colkol
+--
+--
+--
+--    ▼ instructions below ▼
+--
+-- K2 changes sample
+-- K3 toggles recorindg
+-- E2 changes modulator
+-- E3 modulates
 
 
 local Formatters=require 'formatters'
@@ -19,13 +30,12 @@ modulators = {
   {name="loop3",para="3level"},
 }
 
-
 -- state
 update_ui=false
 softcut_loop_starts = {1,1,1,1,1,1}
 softcut_loop_ends = {60,60,60,60,60,60}
-ui_choice_sample = 1
-ui_choice_mod = 1
+ui_choice_sample = 0
+ui_choice_mod = 0
 
 -- WAVEFORMS
 waveform_samples = {{}}
@@ -223,8 +233,8 @@ end
 
 function key(k,z)
   if k==2 and z==1 then 
-    ui_choice_sample = sign_cycle(ui_choice_sample,z,1,3)
-  elseif k==3 and z==1 then 
+    ui_choice_sample = sign_cycle(ui_choice_sample,z,0,3)
+  elseif k==3 and z==1 and ui_choice_sample > 0 then 
     params:set(ui_choice_sample.."rec",1-params:get(ui_choice_sample.."rec"))
   end
 end
@@ -321,17 +331,24 @@ function redraw()
       end
     end
   end
-  screen.level(1)
-  screen.move(14+42*(ui_choice_sample-1),64)
-  screen.line_rel(14,0)
-  screen.stroke()
+
+  -- draw rect around current sample
+  if ui_choice_sample > 0 then 
+    if params:get(ui_choice_sample.."rec")==1 then 
+      screen.level(15)
+    else
+      screen.level(1)
+    end
+    screen.rect(1+42*(ui_choice_sample-1),bar_position+bar_height+1,43,64-bar_position-bar_height-1)
+    screen.stroke()
+  end
 
   -- draw middle bar
   screen.level(15)
-  screen.rect(0,bar_position,128,bar_height)
+  screen.rect(0,bar_position-1,128,bar_height+2)
   screen.fill()
   screen.level(0)
-
+  
   -- label which modulator is selected
   if ui_choice_mod > 0 then 
     x = math.floor((ui_choice_mod-1)/(#modulators)*128)+2
@@ -345,20 +362,71 @@ function redraw()
       screen.move(x,y)
       screen.text(modulators[ui_choice_mod].name)
     end
-  end
-
-
-  -- draw rect around current sample
-  if params:get(ui_choice_sample.."rec")==1 then 
-    screen.level(15)
   else
-    screen.level(1)
+    draw_colkol(100,bar_position)
   end
-  screen.rect(1+42*(ui_choice_sample-1),bar_position+bar_height+1,43,64-bar_position-bar_height-1)
-  screen.stroke()
+
   screen.update()
 end
 
+function draw_colkol(x,y)
+  local pixels = {
+    {44,50},
+    {45,50},
+    {46,50},
+    {47,50},
+    {47,51},
+    {47,52},
+    {47,53},
+    {47,54},
+    {46,54},
+    {45,54},
+    {44,54},
+    {45,52},
+    {39,50},
+    {39,51},
+    {40,51},
+    {41,51},
+    {42,51},
+    {42,52},
+    {41,53},
+    {40,53},
+    {40,54},
+    {32,50},
+    {33,50},
+    {34,50},
+    {35,50},
+    {35,51},
+    {34,52},
+    {34,53},
+    {34,54},
+    {32,52},
+    {32,53},
+    {32,54},
+    {32,55},
+    {30,50},
+    {29,52},
+    {30,52},
+    {30,53},
+    {30,54},
+    {24,50},
+    {24,51},
+    {25,51},
+    {26,51},
+    {27,51},
+    {27,52},
+    {26,53},
+    {25,53},
+    {25,54},
+  }
+  xmin = 24
+  ymin = 50
+  screen.level(0)
+  for _, p in ipairs(pixels) do
+    screen.pixel(p[1]-xmin+x,p[2]-ymin+y)
+  end
+  screen.fill()
+end
 
 function sign_cycle(value,d,min,max)
   if d > 0 then 
