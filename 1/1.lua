@@ -64,7 +64,7 @@ function init()
       type='control',
       id=i..'level',
       name='level',
-      controlspec=controlspec.new(0,1,'lin',0.01,1,''),
+      controlspec=controlspec.new(0,0.5,'lin',0.01,0.5,''),
       action=function(value)
         softcut.level(i*2,value)
         softcut.level(i*2-1,value)
@@ -126,8 +126,8 @@ function init()
     }
   end
 
-  params:set("1rec",0)
-  params:set("1engine_modulator",0)
+  params:set("1rec",1)
+  params:set("5engine_modulator",0.15)
 end
 
 function update_positions(i,x)
@@ -210,7 +210,7 @@ function enc(k,d)
       params:set(ui_choice_engine.."engine_modulator",util.clamp(params:get(ui_choice_engine.."engine_modulator")+d/100,0,1))
     else
       local loop_num = ui_choice_engine-#engine_modulators
-      params:set(loop_num.."level",util.clamp(params:get(loop_num.."level")+d/100,0,1))
+      params:set(loop_num.."level",util.clamp(params:get(loop_num.."level")+d/100,0,0.5))
     end
   end
 end
