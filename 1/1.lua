@@ -1,5 +1,5 @@
 -- downtown v0.0.1
--- lift every voice
+-- the cityscape is full of sound.
 --
 -- llllllll.co/t/downtown
 --
@@ -7,8 +7,8 @@
 --
 --    ▼ instructions below ▼
 --
--- K2 changes sample
--- K3 toggles recorindg
+-- K2 switches sample
+-- K3 toggles recording
 -- E2 changes modulator
 -- E3 modulates
 
@@ -17,20 +17,27 @@ local Formatters=require 'formatters'
 
 engine.name = "ID1"
 
--- things to customize
-loop_max_beats = 16
-modulators = {
-  {name="birds",para="1engine",engine="amp1"},
-  {name="bells",para="2engine",engine="amp2"},
-  {name="bass",para="3engine",engine="amp3"},
-  {name="bass note",para="3enginenote",engine="notescale"},
-  {name="drums",para="4engine",engine="amp4"},
-  {name="kick",para="5engine",engine="amp5"},
-  {name="bongo",para="6engine",engine="amp6"},
-  {name="loop1",para="1level"},
-  {name="loop2",para="2level"},
-  {name="loop3",para="3level"},
+---------           START CHANGING CODE           ---------
+-- this modulates the length of softcut loops
+loop_max_beats = 16 
+
+-- these show up as "towers" which you can scale
+-- if you change the engine you should change these
+modulators = {  
+  -- these are engine related (see the engine)
+  {name="birds",engine="amp1",max=0.5},
+  {name="bells",engine="amp2",max=0.5},
+  {name="bass",engine="amp3",max=0.5},
+  {name="bass note",engine="midinote",min=12,max=60,interval=1,default=29},
+  {name="drums",engine="amp4",max=0.5},
+  {name="kick",engine="amp5",max=0.5},
+  {name="bongo",engine="amp6",max=0.5},
+  -- put loops in the city
+  {name="loop1",max=0.5,default=0.5},
+  {name="loop2",max=0.5,default=0.3},
+  {name="loop3",max=0.5,default=0.2},
 }
+--------- STOP CHANGING CODE unless you want to :) ---------
 
 -- state
 update_ui=false
@@ -40,6 +47,7 @@ modulator_ordering = {}
 ui_choice_sample = 0
 ui_choice_mod = 0
 city_widths = {}
+defaults_set=false
 
 -- WAVEFORMS
 waveform_samples = {{}}
@@ -52,13 +60,6 @@ bar_height = 5
 function init()
   norns.enc.sens(2,4) 
   norns.enc.sens(3,4) 
-
-  engine.bpm(clock.get_tempo())
-	engine.amp1(0.0)
-	engine.amp2(0.0)
-	engine.amp3(0.0)
-	engine.amp4(0.0)
-	engine.amp5(0.0)
 
   modulator_ordering = {}
   for i, _ in ipairs(modulators) do 
@@ -73,25 +74,35 @@ function init()
   updater.count = -1
   updater.event = update_screen
   updater:start()
-	reset_softcut()
-  softcut.event_phase(update_positions)
-  softcut.event_render(on_render)
-  softcut.poll_start_phase()
+
+  -- build up the modulators
+  for i,m in ipairs(modulators) do
+      if m.default == nil then 
+        modulators[i].default = 0
+      end
+      if m.min == nil then 
+        modulators[i].min = 0
+      end
+      if m.max == nil then 
+        modulators[i].max = 1
+      end
+      if m.interval==nil then
+        modulators[i].interval = 0.01
+      end    
+  end
 
   params:add_separator("engine")
-  for _,m in ipairs(modulators) do 
+  for i,m in ipairs(modulators) do 
     if m.engine ~= nil then 
-      local default_value = m.default
-      if default_value == nil then 
-        default_value = 0.0
-      end
       params:add {
         type='control',
-        id=m.para,
+        id=m.name,
         name=m.name,
-        controlspec=controlspec.new(0,0.5,'lin',0,default_value,'',0.01),
+        controlspec=controlspec.new(m.min,m.max,'lin',m.interval,m.default,''),
         action=function(value)
-          local f=load("engine."..m.engine.."("..value..")")
+          local enginecmd="engine."..m.engine.."("..value..")"
+          print(enginecmd)
+          local f=load(enginecmd)
           f()
         end
       }
@@ -103,7 +114,7 @@ function init()
     params:add_separator("loop "..i)
     params:add {
       type='control',
-      id=i..'level',
+      id='loop'..i,
       name='level',
       controlspec=controlspec.new(0,0.5,'lin',0.01,0.5,''),
       action=function(value)
@@ -115,9 +126,9 @@ function init()
       type='control',
       id=i..'start',
       name='start',
-      controlspec=controlspec.new(0,loop_max_beats-1,'lin',1,0,'beats'),
+      controlspec=controlspec.new(1,loop_max_beats-1,'lin',1,1,'beats'),
       action=function(value)
-        local loop_length = clock.get_beat_sec()*value
+        local loop_length = clock.get_beat_sec()*(value-1)
         softcut.loop_start(i*2,softcut_loop_starts[i*2]+loop_length)
         softcut.loop_start(i*2-1,softcut_loop_starts[i*2-1]+loop_length)
       end
@@ -167,14 +178,16 @@ function init()
     }
   end
 
-  -- SET YOUR DEFAULTS!
-  params:set("1erase",10)
-  params:set("2erase",20)
-  params:set("3erase",25)
-  params:set("1level",0.5)
-  params:set("2level",0.3)
-  params:set("3level",0.2)
-  params:set("3enginenote",0.5)
+  reset_softcut()
+  softcut.event_phase(update_positions)
+  softcut.event_render(on_render)
+  softcut.poll_start_phase()
+  params:bang()
+
+  -- setup audio
+  audio.level_eng_cut(0)
+  audio.level_adc_cut(1)
+  audio.level_tape_cut(1)
 end
 
 function update_positions(i,x)
@@ -192,10 +205,6 @@ function on_render(ch, start, i, s)
 end
 
 function reset_softcut()
-  audio.level_eng_cut(0)
-  audio.level_adc_cut(1)
-  audio.level_tape_cut(1)
-
 	loop_start = 1 
 	loop_length = clock.get_beat_sec()*loop_max_beats
 	softcut.reset()
@@ -253,7 +262,11 @@ function enc(k,d)
   if k==2 then 
     ui_choice_mod = sign_cycle(ui_choice_mod,d,0,#modulators)
   elseif k==3 and ui_choice_mod > 0 then 
-    params:set(modulators[ui_choice_mod].para,util.clamp(params:get(modulators[ui_choice_mod].para)+d/100,0,1))
+    m = modulators[ui_choice_mod]
+    if m.interval == 1 then 
+      d = sign(d)
+    end
+    params:set(m.name,util.clamp(params:get(m.name)+d*m.interval,m.min,m.max))
   end
 end
 
@@ -265,9 +278,9 @@ function key(k,z)
   end
 end
 
-function draw_building(i)
+function draw_building(i,order)
     m = modulators[i]
-    v = params:get(m.para)/0.5
+    v = params:get(m.name)/m.max
     if v == 0 then 
       do return end
     end
@@ -288,7 +301,7 @@ function draw_building(i)
     if highlight then 
       screen.level(15)
     else
-      screen.level(1)
+      screen.level(math.ceil(10*order/#modulators))
     end
     screen.rect(x,y-v*h,w,v*h)
     screen.stroke()
@@ -328,8 +341,8 @@ function redraw()
 
   -- draw engine skyline
   draw_godzilla()
-  for _,i in ipairs(modulator_ordering) do
-    draw_building(i)
+  for order,i in ipairs(modulator_ordering) do
+    draw_building(i,order)
   end
 
   -- show samples
@@ -416,14 +429,23 @@ function draw_godzilla()
   local pixels = {
 {114,0},{115,0},{116,0},{117,0},{118,0},{119,0},{120,0},{121,0},{122,0},{112,1},{113,1},{122,1},{124,1},{125,1},{126,1},{112,2},{119,2},{122,2},{123,2},{124,2},{126,2},{112,3},{113,3},{114,3},{115,3},{116,3},{117,3},{124,3},{126,3},{127,3},{128,3},{129,3},{117,4},{124,4},{125,4},{126,4},{129,4},{115,5},{116,5},{126,5},{127,5},{129,5},{114,6},{127,6},{128,6},{129,6},{130,6},{114,7},{115,7},{116,7},{117,7},{118,7},{123,7},{128,7},{129,7},{119,8},{123,8},{129,8},{130,8},{120,9},{121,9},{123,9},{130,9},{119,10},{120,10},{119,11},{121,11},{122,11},{122,12},{122,13},{123,13},{128,13},{129,13},{123,14},{124,14},{125,14},{127,14},{128,14},{122,15},{123,15},{127,15},{121,16},{127,16},{120,17},{121,17},{122,17},{126,17},{127,17},{128,17},{129,17},
   }
-  screen.level(1)
+  screen.level(5)
   if ui_choice_mod == 0 then 
-    screen.level(15)
+    screen.level(10)
   end
   for _, p in ipairs(pixels) do
     screen.pixel(p[1],p[2]+1)
   end
   screen.fill()
+end
+
+function sign(value)
+  if value > 0 then 
+    return 1
+  elseif value < 0 then 
+    return -1
+  end
+  return 0
 end
 
 function sign_cycle(value,d,min,max)

@@ -1,5 +1,7 @@
 // Engine_ID1
 // sctweet loops
+// find more at
+// https://twitter.com/search?q=SinOsc%20(%23supercollider%20OR%20%23sc%20OR%20%23sctweet)&src=typed_query&f=live
 
 // testing in supercollider ide
 // ({
@@ -49,17 +51,17 @@ Engine_ID1 : CroneEngine {
 			amp_ = Lag.ar(K2A.ar(amp), amplag);
 			snd=SinOsc.ar(LFNoise0.ar(10).range(100,1e4),0,0.05)*Decay.kr(Dust.kr(1));
 			snd=GVerb.ar(snd*LFNoise1.ar(32.703),299,10,0.2,0.5,50,0,0.2,0.9,mul:amp_);
+			snd = HPF.ar(snd,20);
 
 			snd
 		}.play(target: context.xg);
 
 		// bass, adapted from https://sccode.org/1-55m
 		synth3 = {
-			arg amp=0.0, amplag=0.02, bpm=120, notescale=0.0;
-			var amp_, notescale_, hz_, snd, pulse, bass, lfo;	
+			arg amp=0.0, amplag=0.02, bpm=120, midinote=24;
+			var amp_, hz_, snd, pulse, bass, lfo;	
 			amp_ = Lag.ar(K2A.ar(amp), amplag);
-			notescale_ = Lag.ar(K2A.ar(notescale), amplag);
-			hz_ = (notescale_*11+24).round.midicps;
+			hz_ = midinote.midicps;
 
 			pulse = Decay2.ar(Impulse.ar(bpm/60), 0.01, 1)*SinOsc.ar(hz_,mul:0.25);
 			bass = Splay.ar(SinOscFB.ar(hz_, 1.5));
@@ -73,7 +75,7 @@ Engine_ID1 : CroneEngine {
 
 		// drumbeat, adapted from https://twitter.com/aucotsi/status/400603496140906496
 		synth4 = {
-			arg amp=0.5, amplag=0.02, bpm=120, hz=1300;
+			arg amp=0.0, amplag=0.02, bpm=120, hz=1300;
 			var amp_, hz_, snd;
 			amp_ = Lag.ar(K2A.ar(amp), amplag);
 			hz_ = Lag.ar(K2A.ar(hz), amplag);
@@ -81,6 +83,7 @@ Engine_ID1 : CroneEngine {
 			snd = IFFT(PV_BrickWall(FFT(Buffer.alloc(context.server,512),WhiteNoise.ar*Pulse.ar(4*(bpm/60),1e-4*TChoose.kr(SinOsc.kr(0.5),[0.25,0.5,1,2,3,4,5,6,7,8,9,10]))),SinOsc.ar(bpm/60/8,mul:0.05).abs+0.01));
 	        snd = Slew.ar(snd,3000,1000,mul:amp_);
 	        snd = Pan2.ar(snd,SinOsc.kr(bpm/60/8,mul:0.5));
+	        snd = HPF.ar(snd,20);
 
 	        snd
 		}.play(target: context.xg);
@@ -92,6 +95,7 @@ Engine_ID1 : CroneEngine {
 			amp_ = Lag.ar(K2A.ar(amp), amplag);
 
 			snd = Limiter.ar(SinOsc.ar(9*Pulse.ar(bpm/60/4),0,Pulse.kr(bpm/60/4)),level:amp_);
+	        snd = HPF.ar(snd,20);
 
 			[snd,snd]
 		}.play(target: context.xg);
@@ -114,6 +118,7 @@ Engine_ID1 : CroneEngine {
 					)
 				),level:0.25)
 		    ),level:amp_);
+	        snd = HPF.ar(snd,20);
 
 			[snd,snd]
 		}.play(target: context.xg);
@@ -138,8 +143,8 @@ Engine_ID1 : CroneEngine {
 			synth3.set(\amp, msg[1]);
 		});
 
-		this.addCommand("notescale", "f", { arg msg;
-			synth3.set(\notescale, msg[1]);
+		this.addCommand("midinote", "f", { arg msg;
+			synth3.set(\midinote, msg[1]);
 		});
 
 		this.addCommand("amp4", "f", { arg msg;
