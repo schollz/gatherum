@@ -6,7 +6,7 @@ sounds around town.
 
 view downtown over the skyline. build skyscrapers or tear them down to change the sounds coming from the city. record and mix in your own sounds to join the city.
 
-cities are all alike and all different. like cities, this script welcomes changes. the engine is simply a collection supercollider tweets - you can [easily find more](https://twitter.com/search?q=SinOsc%20(%23supercollider%20OR%20%23sc%20OR%20%23sctweet)&src=typed_query&f=live). once you remove/add an engine, you can change the [modulators in the main script]().
+cities are all alike and all different. like cities, this script welcomes changes. the engine is simply a collection supercollider tweets - you can [easily find more](https://twitter.com/search?q=SinOsc%20(%23supercollider%20OR%20%23sc%20OR%20%23sctweet)&src=typed_query&f=live). find one you like and [add it as a new tower int the city]().
 
 ### Requirements
 
@@ -21,10 +21,12 @@ cities are all alike and all different. like cities, this script welcomes change
 
 i made this script as a "playground" where i can very easily add little supercollider things and interact with them through softcut loops. the three sample loops record in stereo and their length is dependent on the norns internal tempo. they are set to 16 beats, but this can be changed within the script (restart to apply changes).
 
+#### new towers
+
 the engine has a bunch of different free-running supercollider scripts. its easy to add your own. if you want to add one, you can follow these five steps to get your own working:
 
-1. in `Engine_ID1.sc`, add a `  var <synthX;` at the top after `Engine_ID1 : CroneEngine {`, where `X` is whatever you want.
-2. in `Engine_ID1.sc`, define the `synthX`, using something similar to this:
+1. in `Engine_Downtown.sc`, add a `  var <synthX;` at the top after `Engine_Downtown : CroneEngine {`, where `X` is whatever you want.
+2. in `Engine_Downtown.sc`, define the `synthX`, using something similar to this:
 
 ```
 synthX = {
@@ -39,7 +41,7 @@ synthX = {
 }.play(target: context.xg);
 ```
 
-3. in `Engine_ID1.sc`, create a command definition that can be used from within lua. a simple one that each could have is amplitude to change the levels.
+3. in `Engine_Downtown.sc`, create a command definition that can be used from within lua. a simple one that each could have is amplitude to change the levels.
 
 ```
 this.addCommand("ampX", "f", { arg msg;
@@ -47,7 +49,7 @@ this.addCommand("ampX", "f", { arg msg;
 });
 ```
 
-4. in `Engine_ID1.sc`, add `synthX.free;` at the bottom of the code.
+4. in `Engine_Downtown.sc`, add `synthX.free;` at the bottom of the code.
 5. in `downtown.lua` add a new modulator that references the command definitions:
 
 ```lua

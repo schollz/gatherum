@@ -1,4 +1,4 @@
-// Engine_ID1
+// Engine_Downtown
 // sctweet loops
 // find more at
 // https://twitter.com/search?q=SinOsc%20(%23supercollider%20OR%20%23sc%20OR%20%23sctweet)&src=typed_query&f=live
@@ -16,7 +16,7 @@
 // }.play)
 
 // Inherit methods from CroneEngine
-Engine_ID1 : CroneEngine {
+Engine_Downtown : CroneEngine {
 	// Define a getter for the synth variable
 	var <synth1;
 	var <synth2;

@@ -15,7 +15,7 @@
 
 local Formatters=require 'formatters'
 
-engine.name = "ID1"
+engine.name = "Downtown"
 
 ---------           START CHANGING CODE           ---------
 -- this modulates the length of softcut loops
