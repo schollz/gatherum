@@ -44,11 +44,12 @@ Engine_Breakcore : CroneEngine {
 
         context.server.sync;
 
-        this.addCommand("bb_load","s", { arg msg;
-            // sampleBuffBreakcore.free;
+        this.addCommand("bb_load","sf", { arg msg;
+            sampleBuffBreakcore.free;
             "loading file".postln;
             sampleBuffBreakcore = Buffer.read(context.server,msg[1],action:{
-                synBreakcore.set(\bufnum,sampleBuffBreakcore.bufnum);
+                "loaded file".postln;
+                synBreakcore.set(\bufnum,sampleBuffBreakcore.bufnum,\bpmsource,msg[2]);
             });
         });
 
