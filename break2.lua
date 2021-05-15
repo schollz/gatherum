@@ -1,0 +1,48 @@
+-- if it ain't broken
+-- break it
+
+
+engine.name="Breakcore2"
+
+amp=0
+function init()
+  print("init")
+  midistarter()
+  print("loading engine")
+  engine.bb_load("/home/we/dust/code/infinitedigits/data/breakbeats_160bpm2_4beats.wav",160)
+  engine.bb_bpm(clock.get_tempo())
+end
+
+
+function midistarter()
+  for i,dev in pairs(midi.devices) do
+    if dev.port~=nil then
+      local conn=midi.connect(dev.port)
+      conn.event=function(data)
+        local msg=midi.to_msg(data)
+        if msg.type=="clock" then do return end end
+        -- OP-1 fix for transport
+        if msg.type=='start' or msg.type=='continue' then
+          print("starting")
+          engine.bb_reset()
+          engine.bb_amp(amp)
+        elseif msg.type=="stop" then
+          print("stopping")
+          engine.bb_amp(0)
+        end
+      end
+    end
+  end
+end
+
+function enc(k,d)
+  amp = util.clamp(amp+d/10,0,1)
+  engine.bb_amp(amp)
+end
+
+function redraw()
+  screen.clear()
+  screen.move(64,32)
+  screen.text_center("///break///again")
+  screen.update()
+end
