@@ -43,6 +43,6 @@ end
 function redraw()
   screen.clear()
   screen.move(64,32)
-  screen.text_center("///break///again")
+  screen.text_center("<infinite>digits</infinite>")
   screen.update()
 end
