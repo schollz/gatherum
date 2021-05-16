@@ -1,11 +1,14 @@
--- if it ain't broken
--- break it
-
+-- turn any knob
+-- play sequence on midi
+-- device to sync it
 
 engine.name="Breakcore2"
 
-amp=0
 function init()
+  params:add{type="control",id="amp",name="amp",controlspec=controlspec.new(0,0.5,'lin',0,0,'amp',0.01/0.5),action=function(v)
+    engine.bb_amp(v)
+  end
+  }
   print("init")
   midistarter()
   print("loading engine")
@@ -25,7 +28,7 @@ function midistarter()
         if msg.type=='start' or msg.type=='continue' then
           print("starting")
           engine.bb_reset()
-          engine.bb_amp(amp)
+          engine.bb_amp(params:get("amp"))
         elseif msg.type=="stop" then
           print("stopping")
           engine.bb_amp(0)
@@ -36,13 +39,12 @@ function midistarter()
 end
 
 function enc(k,d)
-  amp = util.clamp(amp+d/10,0,1)
-  engine.bb_amp(amp)
+  params:delta("amp",d)
 end
 
 function redraw()
   screen.clear()
   screen.move(64,32)
-  screen.text_center("<infinite>digits</infinite>")
+  screen.text_center("<br></br><br></br>")
   screen.update()
 end

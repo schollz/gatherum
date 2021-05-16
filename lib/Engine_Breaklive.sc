@@ -15,7 +15,7 @@ Engine_Breaklive : CroneEngine {
 
     alloc {
         // Breaklive specific v0.0.1
-        sampleBuffLive = Buffer.alloc(context.server, context.server.sampleRate * 4.0, 2);
+        sampleBuffLive = Buffer.alloc(context.server, context.server.sampleRate * 18.0, 2);
 
         context.server.sync;
 
@@ -57,6 +57,11 @@ Engine_Breaklive : CroneEngine {
 
         this.addCommand("bb_rate","f", { arg msg;
             synPlayer.set(\rate,msg[1])
+        });
+
+
+        this.addCommand("bb_bpm","f", { arg msg;
+            synPlayer.set(\bpm,msg[1])
         });
 
         this.addCommand("bb_ampmin","f", { arg msg;
