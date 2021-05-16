@@ -1,4 +1,6 @@
 -- kalimba
+-- follow a real kalimba
+-- with a synthesized one
 
 engine.name='Kalimba'
 
@@ -29,7 +31,7 @@ end
 
 function init()
   engine.amp(0)
-  
+
   -- Polls
   --update pitch
   local pitch_poll_l=poll.set("pitch_in_l",function(value)
@@ -77,6 +79,8 @@ end
 
 function redraw()
   screen.clear()
+  screen.move(64,32)
+  screen.text_center("kalimba")
   screen.update()
 end
 
