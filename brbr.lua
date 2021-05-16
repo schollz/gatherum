@@ -1,3 +1,4 @@
+-- less-noisy chaotic breakbeats
 -- turn any knob
 -- play sequence on midi
 -- device to sync it
@@ -12,7 +13,7 @@ function init()
   print("init")
   midistarter()
   print("loading engine")
-  engine.bb_load("/home/we/dust/code/infinitedigits/data/breakbeats_160bpm2_4beats.wav",160)
+  engine.bb_load("/home/we/dust/code/gatherum/data/breakbeats_160bpm2_4beats.wav",160)
   engine.bb_bpm(clock.get_tempo())
 end
 

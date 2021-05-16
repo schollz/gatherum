@@ -1,4 +1,4 @@
--- noisey breakbeats
+-- noisy breakbeats
 -- turn any knob
 
 engine.name="Breakcore"
@@ -9,7 +9,7 @@ function init()
     engine.bb_amp(v)
   end
   }
-  engine.bb_load("/home/we/dust/code/infinitedigits/data/breakbeats_160bpm2.wav",160)
+  engine.bb_load("/home/we/dust/code/gatherum/data/breakbeats_160bpm2.wav",160)
   engine.bb_bpm(clock.get_tempo())
 end
 
