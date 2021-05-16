@@ -9,7 +9,7 @@ function init()
     engine.bb_amp(v)
   end
   }
-  engine.bb_load("/home/we/dust/code/gatherum/data/breakbeats_160bpm2.wav",160)
+  engine.bb_load("/home/we/dust/code/gatherum/data/breakbeats_160bpm2_4beats.wav",160)
   engine.bb_bpm(clock.get_tempo())
 end
 
