@@ -14,7 +14,7 @@ local amp_max=0.06
 local note_activated=false
 local viewport={width=128,height=64,time=0}
 -- A2 C3 E3 F3 A3 B3 C4 E4
-local frequency_percent_tolerance=0.05
+local frequency_percent_tolerance=0.2
 local frequency_available={229,261,328,350,440,494,523,660}
 
 -- Encoder input
@@ -80,7 +80,7 @@ function redraw()
   screen.update()
 end
 
-local function update_freq(freq)
+function update_freq(freq)
   current_freq=freq
   if current_freq>0 then
     debounce_timer[2]=util.time()
