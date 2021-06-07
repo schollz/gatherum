@@ -13,6 +13,7 @@ Engine_IDLive : CroneEngine {
     var bufBreaklive;
     var synBreakliveRec;
     var synBreaklivePlay;
+    var mainBus;
     // IDLive ^
 
     *new { arg context, doneCallback;
@@ -22,24 +23,25 @@ Engine_IDLive : CroneEngine {
     alloc {
         // IDLive specific v0.0.1
         // break live
+        mainBus=Bus.audio(context.server,2);
         bufBreaklive = Buffer.alloc(context.server, context.server.sampleRate * 18.0, 2);
 
         context.server.sync;
 
         SynthDef("defBreakliveRec", {
-            arg bufnum;
-            RecordBuf.ar(SoundIn.ar([0,1]),bufnum);
+            arg bufnum, in;
+            RecordBuf.ar(SoundIn.ar([0,1])+In.ar(in,2),bufnum);
         }).add;
 
         
         SynthDef("defBreaklivePlay", {
-            arg amp=1, t_trig=0, bpm=140,bufnum, rate=1,ampmin=0;
+            arg amp=1, t_trig=0, bpm=140,bufnum, rate=1,ampmin=0, in;
             var timer, pos, start, end, snd, aOrB, crossfade, mainamp;
             aOrB=ToggleFF.kr(t_trig);
             crossfade=Lag.ar(K2A.ar(aOrB),0.5);
-
+            rate=Lag.kr(rate,8);
             timer=Phasor.ar(1,1,0,BufFrames.ir(bufnum));
-            start=Latch.kr(timer-(60/bpm/16*(LFNoise0.kr(1).range(1,16).floor.poll)*BufSampleRate.ir(bufnum)),aOrB);
+            start=Latch.kr(timer-(60/bpm/16*(LFNoise0.kr(1).range(1,16).floor)*BufSampleRate.ir(bufnum)),aOrB);
             start=(start>0*start)+(start<0*0);
             end=Latch.kr(timer,aOrB);
             pos=Phasor.ar(aOrB,
@@ -49,29 +51,29 @@ Engine_IDLive : CroneEngine {
                 resetPos:(((rate>0)*start)+((rate<0)*end)),
             );
             snd=BufRd.ar(2,bufnum,pos,interpolation:4);
-            snd=(crossfade.poll*snd)+(LinLin.kr(1-crossfade,0,1,ampmin,1)*SoundIn.ar([0,1]));
+            snd=(crossfade*snd)+(LinLin.kr(1-crossfade,0,1,ampmin,1)*(SoundIn.ar([0,1])+In.ar(in,2)));
             Out.ar(0,snd*amp);
         }).add;
 
         context.server.sync;
 
-        synBreakliveRec = Synth("defBreakliveRec",[\bufnum,bufBreaklive],context.xg);
-        synBreaklivePlay = Synth("defBreaklivePlay",[\bufnum,bufBreaklive],context.xg);
+        synBreakliveRec = Synth("defBreakliveRec",[\bufnum,bufBreaklive,\in,mainBus.index],context.xg);
+        synBreaklivePlay = Synth("defBreaklivePlay",[\bufnum,bufBreaklive,\in,mainBus.index],context.xg);
 
-        this.addCommand("bb_break","", { arg msg;
+        this.addCommand("bl","", { arg msg;
             synBreaklivePlay.set(\t_trig,1)
         });
 
-        this.addCommand("bb_rate","f", { arg msg;
+        this.addCommand("bl_rate","f", { arg msg;
             synBreaklivePlay.set(\rate,msg[1])
         });
 
 
-        this.addCommand("bb_bpm","f", { arg msg;
+        this.addCommand("bl_bpm","f", { arg msg;
             synBreaklivePlay.set(\bpm,msg[1])
         });
 
-        this.addCommand("bb_ampmin","f", { arg msg;
+        this.addCommand("bl_ampmin","f", { arg msg;
             synBreaklivePlay.set(\ampmin,msg[1])
         });
 
@@ -146,9 +148,9 @@ Engine_IDLive : CroneEngine {
         context.server.sync;
 
         synBreakbeat = Synth("defBreakbeat",[
-            \out,0,
+            \out,mainBus.index,
             \bufnum,bufBreakbeat;
-        ], context.xg);
+        ], target:context.xg);
 
         context.server.sync;
 
@@ -178,7 +180,7 @@ Engine_IDLive : CroneEngine {
 
         // the drone
         SynthDef("defDrone", {
-            arg freq=110.0,amp=0;
+            arg freq=110.0,amp=0,out;
             var local, in, ampcheck,movement, snd;
 
             amp=Lag.kr(amp,8);
@@ -215,13 +217,13 @@ Engine_IDLive : CroneEngine {
             snd = Balance2.ar(local[0] * 0.2,local[1]*0.2,SinOsc.kr(
                 LinLin.kr(LFNoise0.kr(0.1),-1,1,0.05,0.2)
             )*0.1)*amp;
-            Out.ar(0,snd);
+            Out.ar(out,snd);
         }).add;
 
 
         context.server.sync;
 
-        synDrone = Synth("defDrone", target:context.xg);
+        synDrone = Synth("defDrone",[\out,mainBus.index],target:context.xg);
 
         context.server.sync;
 
@@ -362,13 +364,13 @@ Engine_IDLive : CroneEngine {
             // apply some global fx
             snd=RLPF.ar(snd,fx_lowpass_freq,fx_lowpass_rq);
 
-            Out.ar(0, snd);
+            Out.ar(out, snd);
         }).add;
 
         context.server.sync;
 
         synSupertonic = Array.fill(maxVoices,{arg i;
-            Synth("supertonic", [\level,-100],target:context.xg);
+            Synth("supertonic", [\level,-100,\out,0],target:context.xg);
         });
 
         context.server.sync;
@@ -381,7 +383,7 @@ Engine_IDLive : CroneEngine {
                 ("freeing "++synVoice).postln;
                 synSupertonic[synVoice].free;
             });
-            synSupertonic[synVoice]=Synth("supertonic",[
+            synSupertonic[synVoice]=Synth.after(synBreaklivePlay,"supertonic",[
                 \out,0,
                 \distAmt, msg[1],
                 \eQFreq, msg[2],
@@ -407,7 +409,7 @@ Engine_IDLive : CroneEngine {
                 \modVel, msg[22],
                 \fx_lowpass_freq,msg[23],
                 \fx_lowpass_rq,msg[24],
-            ], target:context.server);
+            ]);
             NodeWatcher.register(synSupertonic[synVoice]);
         });
 
@@ -423,6 +425,9 @@ Engine_IDLive : CroneEngine {
         synBreakbeat.free;
         synDrone.free;
         (0..maxVoices).do({arg i; synSupertonic[i].free});
+        synBreaklivePlay.free;
+        synBreakliveRec.free;
+        mainBus.free;
         // ^ IDLive specific
     }
 }
