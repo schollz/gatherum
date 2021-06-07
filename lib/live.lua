@@ -36,12 +36,18 @@ function TA:step()
 		local current=self.measure%#v+1
 		if v[current][self.pulse]~="" then
 			local cmd=v[current][self.pulse]
-			cmd=cmd:gsub("<qn>",self.qn)
-			cmd=cmd:gsub("<sn>",self.sn)
-			print(self.measure+1,self.qn,self.sn,self.pulse,k,cmd)
-			rc(cmd)
+			if cmd~=nil then
+				cmd=cmd:gsub("<qn>",self.qn)
+				cmd=cmd:gsub("<sn>",self.sn)
+				print(self.measure+1,self.qn,self.sn,self.pulse,k,cmd)
+				rc(cmd)
+			end
 		end
 	end
+end
+
+function TA:addm(name,snd,measure)
+    self:add(name,sound(snd,"mp:on('"..name.."',<m>,<sn>)"),measure)
 end
 
 -- add row or rows to the time authority for instrument s
@@ -144,7 +150,7 @@ function sound(s,ctx)
 	local lines = string.split(s,";")
 	for i,line in ipairs(lines) do
 		local words=string.split(line," ")
-		local ray=e("-",#words)
+		local ray=er("-",#words)
 		local cmds={}
 		for j,word in ipairs(words) do
 			local notes=music.to_midi(word)
@@ -168,7 +174,11 @@ function sound(s,ctx)
 		end
 		table.insert(rays,ray)
 	end
-	return rays
+	if #rays==1 then 
+		return rays[1]
+	else
+		return rays
+	end
 end
 
 

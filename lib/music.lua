@@ -525,4 +525,9 @@ function music.chord_to_midi(c,midi_near)
 end
 
 
+-- debug=true
+-- require("utils")
+-- music.chord_to_midi("Am/E:4")
+
+
 return music
