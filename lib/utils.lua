@@ -24,7 +24,27 @@ end
 
 -- table.print prints the table
 function table.print(t)
+	local islist=false
 	for k,v in pairs(t) do 
-		print(k,v)
+		if type(k)=="number" then
+			islist=true
+		end
+		break
+	end
+	if not islist then
+		for k,v in pairs(t) do 
+			print(k,v)
+		end
+	else
+		local s=""
+		for i,v in ipairs(t) do
+			if i==1 then
+				s="{"..v
+			else
+				s=s..","..v
+			end
+		end
+		s=s.."}"
+		print(s)
 	end
 end

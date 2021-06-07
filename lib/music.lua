@@ -179,7 +179,7 @@ function music.note_to_midi(n,midi_near)
   if not success then
     do return nil end
   end
-  return {{m=midi_note,n=note_name}}
+  return {{m=midi_note,n=note_name,v=(midi_note-21)/12,f=2^((midi_note-69)/12)*440}}
 end
 
 function music.chord_to_midi(c,midi_near)
@@ -519,7 +519,7 @@ function music.chord_to_midi(c,midi_near)
   -- return
   local p={}
   for i,m in ipairs(midi_notes_in_chord) do
-    table.insert(p,{m=m,n=notes_in_chord[i]})
+    table.insert(p,{m=m,n=notes_in_chord[i],v=(m-21)/12,f=2^((m-69)/12)*440})
   end
   return p
 end
