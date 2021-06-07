@@ -14,22 +14,31 @@ function TA:new(o)
   self.__index = self
   o.patterns={}
   o.pulse=0
+  o.sn=0
+  o.qn=0
   o.measure=0
   return o
 end
 
 function TA:step()
 	self.pulse = self.pulse+1
+	self.sn=self.sn+1
 	if self.pulse > 16 then 
 		self.pulse=1
 		self.measure = self.measure+1
+	end
+	if self.pulse%4==1 then 
+		self.qn=self.qn+1
 	end
 
 	-- emit anything in the time authority
 	for k,v in pairs(self.patterns) do
 		local current=self.measure%#v+1
 		if v[current][self.pulse]~="" then
-			print(self.measure+1,self.pulse,k,v[current][self.pulse])
+			local cmd=v[current][self.pulse]
+			cmd=cmd:gsub("<qn>",self.qn)
+			cmd=cmd:gsub("<sn>",self.sn)
+			print(self.measure+1,self.qn,self.sn,self.pulse,k,cmd)
 			-- rc(v[current][self.pulse])
 		end
 	end
@@ -168,11 +177,11 @@ end
 ta=TA:new()
 -- add some chords and stuff for op-1
 -- expand to 16 measure phrase
-ta:expand("op-1",16)
-ta:add("op-1",sound("Cm7 c4; Dmaj7 d6 . e6","print('<n>')"),1)
+-- ta:expand("op-1",16)
+-- ta:add("op-1",sound("Cm7 c4; Dmaj7 d6 . e6","print('<n>')"),1)
 -- add kick on 2nd measure
-ta:add("kick",r(e("print('kick')",4),1),2)
-for i=1,(8*16) do
+ta:add("kick",r(e("print('kick',<qn>)",4),0),1)
+for i=1,(2*16) do
 	ta:step()
 end
 
