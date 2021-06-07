@@ -46,6 +46,6 @@ end
 function redraw()
   screen.clear()
   screen.move(64,32)
-  screen.text_center("<br></br><br></br>")
+  screen.text_center("press any key to breakbeat")
   screen.update()
 end

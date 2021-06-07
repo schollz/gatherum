@@ -89,23 +89,25 @@ Engine_IDLive : CroneEngine {
 
         context.server.sync;
 
-        this.addCommand("breakbeat_load","sff", { arg msg;
+        this.addCommand("bb_load","sff", { arg msg;
             bufBreakbeat.free;
+            ("loading "++msg[1]).postln;
             bufBreakbeat = Buffer.read(context.server,msg[1],action:{
-                synBreakbeat.set(\bufnum,bufBreakbeat.bufnum,\bpm,msg[2],\bpmsource,msg[3]);
+                ("loaded "++msg[1]).postln;
+                synBreakbeat.set(\bufnum,bufBreakbeat.bufnum,\bpm,msg[2],\bpmsource,msg[3],\t_trig,1,\reset,msg[1],\start,0,\end,1,\rate,1,\loops,1000);
             });
                        
         });
 
-        this.addCommand("breakbeat_amp","f", { arg msg;
+        this.addCommand("bb_amp","f", { arg msg;
             synBreakbeat.set(\amp,msg[1])
         });
 
-        this.addCommand("breakbeat_sync","f", {arg msg;
+        this.addCommand("bb_sync","f", {arg msg;
             synBreakbeat.set(\t_trig,1,\reset,msg[1],\start,0,\end,1,\rate,1,\loops,1000);
         });
 
-        this.addCommand("breakbeat_break","ff", {arg msg;
+        this.addCommand("bb_break","ff", {arg msg;
             synBreakbeat.set(\t_trig,1,\start,msg[1],\reset,msg[1],\end,msg[2],\loops,1000);
         });
 

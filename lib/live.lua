@@ -39,7 +39,7 @@ function TA:step()
 			cmd=cmd:gsub("<qn>",self.qn)
 			cmd=cmd:gsub("<sn>",self.sn)
 			print(self.measure+1,self.qn,self.sn,self.pulse,k,cmd)
-			-- rc(v[current][self.pulse])
+			rc(cmd)
 		end
 	end
 end
@@ -109,7 +109,7 @@ function rc(code)
 end
 
 -- returns an euclidean spaced array of "item"
-function e(item,num,size) 
+function er(item,num,size) 
 	if size==nil then 
 		size=16
 	end
@@ -127,7 +127,7 @@ function e(item,num,size)
 end
 
 -- rotates an array by amt
-function r(t,amt)
+function rot(t,amt)
 	local rotated={}
 	for i=#t-amt+1,#t do
 		table.insert(rotated,t[i])
@@ -147,7 +147,6 @@ function sound(s,ctx)
 		local ray=e("-",#words)
 		local cmds={}
 		for j,word in ipairs(words) do
-			print(i,j,word)
 			local notes=music.to_midi(word)
 			local cmd=""
 			for _, note in ipairs(notes) do
@@ -180,10 +179,10 @@ ta=TA:new()
 -- ta:expand("op-1",16)
 -- ta:add("op-1",sound("Cm7 c4; Dmaj7 d6 . e6","print('<n>')"),1)
 -- add kick on 2nd measure
-ta:add("kick",r(e("print('kick',<qn>)",4),0),1)
-for i=1,(2*16) do
-	ta:step()
-end
+-- ta:add("kick",r(e("print('kick',<qn>)",4),0),1)
+-- for i=1,(2*16) do
+-- 	ta:step()
+-- end
 
 -- table.print(r(e("print('kick')",1),4))
 -- table.print(ta.patterns["kick"][4])
