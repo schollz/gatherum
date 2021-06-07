@@ -132,6 +132,35 @@ function er(item,num,size)
 	return ray
 end
 
+
+-- adds two arrays
+function add(t,t2)
+	local t3={}
+	for i,v1 in ipairs(t) do
+		local v2=t2[i]
+		if v1~="" then
+			table.insert(t3,v1)
+		else 
+			table.insert(t3,v2)
+		end
+	end
+	return t3
+end
+
+-- subtract two arrays
+function sub(t,t2)
+	local t3={}
+	for i,v1 in ipairs(t) do
+		local v2=t2[i]
+		if v1~="" and v2~="" then
+			table.insert(t3,"")
+		else
+			table.insert(t3,v1)
+		end
+	end
+	return t3
+end
+
 -- rotates an array by amt
 function rot(t,amt)
 	local rotated={}
