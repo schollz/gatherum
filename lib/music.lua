@@ -334,8 +334,8 @@ function music.chord_to_midi(c,midi_near)
   if midi_near~=nil then
     octave=math.floor(midi_near/12-1)
   end
-  if string.match(c,";") then
-    for i,s in pairs(string.split(c,";")) do
+  if string.match(c,":") then
+    for i,s in pairs(string.split(c,":")) do
       if i==1 then
         c=s
       else

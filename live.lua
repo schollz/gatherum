@@ -1,7 +1,8 @@
 -- keep it super stupid 
 
 -- imports 
-music=require("music")
+require("lib/utils")
+music=require("lib/music")
 
 TimeVariantAuthority={}
 
@@ -25,6 +26,7 @@ function TimeVariantAuthority:step()
 	for k,v in pairs(tva.patterns) do
 		local current=self.measure%#v+1
 		if v[current][self.pulse]~="" then
+			print(self.measure,self.pulse,v[current][self.pulse])
 			rc(v[current][self.pulse])
 		end
 	end
@@ -34,35 +36,24 @@ function TimeVariantAuthority:add(s,t)
 	if self.patterns[s]==nil then
 		self.patterns[s]={}
 	end
-	table.insert(self.patterns[s],t)
+	if #t[1]==16 and #t>1 then
+		for _, t2 in ipairs(t) do
+			table.insert(self.patterns[s],t2)
+		end
+	else
+		table.insert(self.patterns[s],t)
+	end
+end
+
+
+function TimeVariantAuthority:rm(s)
+	self.patterns[s]=nil
 end
 
 tva=TimeVariantAuthority:new()
 
 
 
--- utils
-function string.split(input_string,split_character)
-  local s=split_character~=nil and split_character or "%s"
-  local t={}
-  if split_character=="" then
-    for str in string.gmatch(input_string,".") do
-      table.insert(t,str)
-    end
-  else
-    for str in string.gmatch(input_string,"([^"..s.."]+)") do
-      table.insert(t,str)
-    end
-  end
-  return t
-end
-
--- table.print prints the table
-function table.print(t)
-	for k,v in pairs(t) do 
-		print(k,v)
-	end
-end
 
 -- rc runs any code, even stupid code
 function rc(code)
@@ -107,7 +98,6 @@ function r(t,amt)
 end
 
 
-
 local his=e("print('hi')",4)
 table.print(his)
 table.print(r(his,2))
@@ -122,5 +112,54 @@ for i,v in ipairs(foo) do
 	table.print(v)
 end
 
-table.print(e("print('hi')",4))
-tva:add("op-1",e("print('okokok')",4))
+
+
+function sound(s,ctx)
+	local rays={}
+	local lines = string.split(s,";")
+	for i,line in ipairs(lines) do
+		local words=string.split(line," ")
+		local ray=e("-",#words)
+		local cmds={}
+		for j,word in ipairs(words) do
+			print(i,j,word)
+			local notes=music.to_midi(word)
+			local cmd=""
+			for _, note in ipairs(notes) do
+				cmd=cmd..ctx:gsub("<m>",note.m)..";"
+			end
+			table.insert(cmds,cmd)
+			
+		end
+		local k=1
+		for j,rayw in ipairs(ray) do
+			if rayw=="-" then
+				ray[j]=cmds[k]
+				k=k+1
+			end
+		end
+		table.insert(rays,ray)
+	end
+	return rays
+end
+
+print("testing")
+tva:add("op-1",sound("Cm7 c4; Dmaj7 d6 . e6","print('<m>')"))
+
+for i=1,32 do
+	tva:step()
+end
+
+-- local rays=sound("Cm7 c4; Dmaj7 d6 . e6","print('<m>')")
+-- for _, ray in ipairs(rays) do
+-- 	tva:add("op-1",ray)
+-- 	table.print(ray)
+-- end
+-- for i=1,16 do
+-- 	tva:step()
+-- end
+-- for i=1,16 do
+-- 	tva:step()
+-- end
+
+
