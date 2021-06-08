@@ -40,6 +40,19 @@ function init()
     division=1/16,
   })
   mp=midipal_:new()
+
+  -- add syncing for drums
+  ta:add("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
+
+  -- start scheduler
+  sched:start()
+end
+
+function glitch(v)
+  if v==nil then
+    v=0
+  end
+  ta:add("bbb",er("if math.random()<"..v.." then; v=math.random(); e.bb_break(v,v+math.random()/40+0.01) end",4),1)
 end
 
 local naturevol=-1
@@ -58,7 +71,7 @@ function nature(vol)
     naturevol=vol
   end
   for i=2,4 do
-    e.s_amp(i,vol/(i*i))
+    e.s_amp(i,6*vol/(i*i))
   end
 end
 
@@ -67,12 +80,27 @@ function break()
 end
 
 function rename(name)
-  if name=="geode" then
+  if name:find("ge")==1 then
     name="usb"
-  elseif name=="sho01a" then
+  elseif name:find("ge")==1 then
     name="bou"
+  elseif name:find("op")==1 then
+    name="op1"
   end
   return name
+end
+
+function measures(name,num)
+  ta:expand(rename(name),num)
+end
+
+function play(name,notes,i)
+  name=rename(name)
+  if name=="drone" then
+    ta:add(name,sound(notes,"e.d_midi(<m>)"),i)
+  elseif mp:ismidi(name) then
+    ta:add(name,sound(snd,"mp:on('"..name.."',<m>,<sn>)"),i)
+  end
 end
 
 function stop(name)
@@ -83,16 +111,8 @@ function stop(name)
   ta:rm(name)
 end
 
-function measures(name,num)
-  ta:expand(rename(name),num)
-end
-
-function play(name,notes,i)
-  if name=="drone" then
-    ta:add(name,sound(notes,"e.d_midi(<m>)"),i)
-  else
-    ta:addm(rename(name),notes,i)
-  end
+function tapebreak()
+  e.bl()
 end
 
 function tapestop()

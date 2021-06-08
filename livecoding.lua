@@ -1,35 +1,30 @@
-norns.script.load("code/tuner/tuner.lua"); crow.output[1].volts=3 -- A3
-
--- don't forget
+-- vim
 -- nnoremap <C-enter> <esc>:silent.w !wscat>>out<enter>i
 -- inoremap <C-enter> <esc>:silent.w !wscat>>out<enter>i
 -- vim run  :silent.w !wscat
--- time authority   ta:rm ta:add(name,er,index)
 
+-- norns.script.load("code/tuner/tuner.lua"); crow.output[1].volts=3 -- A3
 norns.script.load("code/gatherum/live.lua")
 
--- pre show
-
-e.s_load(1,"/home/we/dust/audio/field/birds_eating.wav"); e.s_load(2,"/home/we/dust/audio/field/birds_morning.wav"); e.s_load(3,"/home/we/dust/audio/field/ocean_waves_puget_sound.wav"); 
-local vol=0.0 for i=1,3 do e.s_amp(i,vol/(i*i*i)) end
+nature(1)
 
 
 -- closer
 params:set("clock_tempo",120)
-sched:start()
 
 e.s_load(1,"/home/we/dust/audio/live/closer.wav"); 
 e.s_amp(1,0.5); 
 e.s_mov(1,3/28)
-ta:rm("closer")
+ta:add("closer",er("e.s_mov(1,3/28)",1),1)
 ta:expand("closer",64)
-ta:add("closer",er("e.s_mov(1,3/8)",1),1)
+ta:rm("closer")
 
-ta:rm("bou")
-ta:addm("bou","ab6 bb5 eb5 ab6 eb bb . .",1)
-ta:addm("bou",". b6 . b5 e5 g#6 eb b",2)
-ta:addm("bou","gb6 db5 bb6 db bb . .",3)
-ta:addm("bou","db6 ab . . . db f5 f4",4)
+stop("sh")
+play("sh")
+play("bou","ab6 bb5 eb5 ab6 eb bb . .",1)
+play("bou",". b6 . b5 e5 g#6 eb b",2)
+play("bou","gb6 db5 bb6 db bb . .",3)
+play("bou","db6 ab . . . db f5 f4",4)
 
 ta:rm("op1")
 ta:addm("op1","Abm/Eb:3",1)
