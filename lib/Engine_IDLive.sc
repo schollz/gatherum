@@ -9,7 +9,7 @@ Engine_IDLive : CroneEngine {
     var synDrone;
     var synSupertonic;
     var synVoice=0;
-    var maxVoices=4;
+    var maxVoices=7;
     var bufBreaklive;
     var synBreakliveRec;
     var synBreaklivePlay;
