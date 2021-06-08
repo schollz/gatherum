@@ -30,8 +30,8 @@ Engine_IDLive : CroneEngine {
             Buffer.new(context.server);
         });
         synSample=Array.fill(5,{arg i;{
-                arg amp=0,bufnum;
-                PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),loop:1)*VarLag.kr(amp,20,wrap:\linear)
+                arg amp=0,bufnum=0,t_trig=1,start=0;
+                PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),t_trig,start*BufFrames.kr(bufnum),loop:1)*VarLag.kr(amp,20,wrap:\linear)
             }.play(target:context.xg);
         });
 
@@ -40,12 +40,16 @@ Engine_IDLive : CroneEngine {
             ("loading "++msg[2]).postln;
             bufSample[msg[1]-1] = Buffer.read(context.server,msg[2],action:{
                 ("loaded "++msg[2]).postln;
-                synSample[msg[1]-1].set(\bufnum,bufSample[msg[1]-1].bufnum);
+                synSample[msg[1]-1].set(\bufnum,bufSample[msg[1]-1].bufnum,\t_trig,1);
             });
         });
-
-        this.addCommand("s_amp","if", { arg msg;
+        
+	   this.addCommand("s_amp","if", { arg msg;
             synSample[msg[1]-1].set(\amp,msg[2]);
+        });
+
+        this.addCommand("s_mov","if", { arg msg;
+            synSample[msg[1]-1].set(\start,msg[2],\t_trig,1);
         });
 
 
@@ -456,6 +460,5 @@ Engine_IDLive : CroneEngine {
         mainBus.free;
         5.do({arg i; bufSample[i].free});
         5.do({arg i; synSample[i].free});
-        // ^ IDLive specific
     }
 }
