@@ -12,6 +12,7 @@ drummer=include("supertonic/lib/drummer")
 
 
 e=engine
+last_command=""
 
 function init()
   local patches_=include("supertonic/lib/patches")
@@ -115,8 +116,25 @@ function key(k,z)
   end
 end
 
+function string.wrap(s,num)
+  ss={}
+  while #s>num do
+    local s2=string.sub(s,1,num)
+    table.insert(ss,s2)
+    local s=string.sub(s,num+1,#s)
+    if s=="" then 
+      break
+    end
+  end
+  return ss
+end
+
 function redraw()
   screen.clear()
+  for i,s in ipairs(string.wrap(last_command,36)) do 
+    screen.move(1,8+12*(i-1))
+    screen.text(last_command)
+  end
   screen.move(32,32)
   screen.text_center(ta.measure+1)
   screen.move(32+32,32)

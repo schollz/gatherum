@@ -1,12 +1,8 @@
---   _   _   _   _   _   _   _   _     _   _   _   _   _   _  
---  / \ / \ / \ / \ / \ / \ / \ / \   / \ / \ / \ / \ / \ / \ 
--- ( i | n | f | i | n | i | t | e ) ( d | i | g | i | t | s )
---  \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/   \_/ \_/ \_/ \_/ \_/ \_/ 
-
-
 norns.script.load("code/tuner/tuner.lua"); crow.output[1].volts=3 -- A3
 
 -- don't forget
+-- nnoremap <C-enter> <esc>:silent.w !wscat>>out<enter>i
+-- inoremap <C-enter> <esc>:silent.w !wscat>>out<enter>i
 -- vim run  :silent.w !wscat
 -- time authority   ta:rm ta:add(name,er,index)
 
