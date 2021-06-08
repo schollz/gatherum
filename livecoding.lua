@@ -8,11 +8,17 @@
 -- vim run  :silent.w !wscat
 -- time authority   ta:rm ta:add(name,er,index)
 
+norns.script.load("code/gatherum/live.lua")
+
+-- pre show
+
+e.s_load(1,"/home/we/dust/audio/field/birds_morning.wav");e.s_amp(1,0.0)
+e.s_load(2,"/home/we/dust/audio/field/waves.wav");e.s_amp(2,0.0)
+
 
 -- tock
 
 params:set("clock_tempo",168)
-norns.script.load("code/gatherum/live.lua")
 sched:start()
 sched:stop()
 
@@ -39,12 +45,14 @@ ta:rm("kick")
 ta:add("kick",er("kick:hit()",2),1)
 ta:add("kick",add(er("kick:hit()",2),rot(er("kick:hit()",1),3)),2)
 
-e.d_amp(0.03)
+e.d_amp(0.5)
+ta:add("drone",sound("d1","e.d_midi(<m>)"),1)
+ta:add("drone",sound("b1","e.d_midi(<m>)"),4)
 ta:add("drone",sound("d5","e.d_midi(<m>)"),1)
 ta:add("drone",sound("b4","e.d_midi(<m>)"),4)
 
 e.bb_load("/home/we/dust/audio/breakbeat/breakbeat_168bpm_4beats.wav",clock.get_tempo(),168)
-e.bb_amp(0.00)
+e.bb_amp(0.2)
 ta:add("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
 ta:add("bbb",er("if math.random()<0.1 then; v=math.random(); e.bb_break(v,v+math.random()/40+0.01) end",4),1)
 

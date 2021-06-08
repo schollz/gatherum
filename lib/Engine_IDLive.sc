@@ -14,6 +14,9 @@ Engine_IDLive : CroneEngine {
     var synBreakliveRec;
     var synBreaklivePlay;
     var mainBus;
+    var synSample;
+    var bufSample;
+
     // IDLive ^
 
     *new { arg context, doneCallback;
@@ -23,6 +26,29 @@ Engine_IDLive : CroneEngine {
     alloc {
         // IDLive specific v0.0.1
         // break live
+        bufSample=Array.fill(5,{arg i;
+            Buffer.new(context.server);
+        });
+        synSample=Array.fill(5,{arg i;{
+                arg amp=0,bufnum;
+                PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),loop:1)*VarLag.kr(amp,20,wrap:\linear)
+            }.play(target:context.xg);
+        });
+
+        this.addCommand("s_load","is", { arg msg;
+            bufSample[msg[1]-1].free;
+            ("loading "++msg[2]).postln;
+            bufSample[msg[1]-1] = Buffer.read(context.server,msg[2],action:{
+                ("loaded "++msg[2]).postln;
+                synSample[msg[1]-1].set(\bufnum,bufSample[msg[1]-1].bufnum);
+            });
+        });
+
+        this.addCommand("s_amp","if", { arg msg;
+            synSample[msg[1]-1].set(\amp,msg[2]);
+        });
+
+
         mainBus=Bus.audio(context.server,2);
         bufBreaklive = Buffer.alloc(context.server, context.server.sampleRate * 18.0, 2);
 
@@ -428,6 +454,8 @@ Engine_IDLive : CroneEngine {
         synBreaklivePlay.free;
         synBreakliveRec.free;
         mainBus.free;
+        5.do({arg i; bufSample[i].free});
+        5.do({arg i; synSample[i].free});
         // ^ IDLive specific
     }
 }

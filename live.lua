@@ -63,6 +63,8 @@ end
 function key(k,z)
   if k==2 and z==1 then
       sched:start()
+      e.s_load(1,"/home/we/dust/audio/field/birds_morning.wav")
+      e.s_amp(1,1)
       --ta:add("kick",add(er("kick:hit()",2),rot(er("kick:hit()",1),2)),1)
       -- ta:expand("op1",4)
       -- ta:addm("op1","Am:4",1)
