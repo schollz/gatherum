@@ -131,9 +131,10 @@ end
 
 function redraw()
   screen.clear()
-  for i,s in ipairs(string.wrap(last_command,36)) do 
+  local print_command=last_command..ta.last_command
+  for i,s in ipairs(string.wrap(print_command,36)) do 
     screen.move(1,8+12*(i-1))
-    screen.text(last_command)
+    screen.text(s)
   end
   screen.move(32,32)
   screen.text_center(ta.measure+1)
