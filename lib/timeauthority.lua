@@ -1,12 +1,4 @@
--- keep it super stupid
-
--- imports
-if clock==nil then
-  require("utils")
-  music=require("music")
-end
-
-TA={}
+local TA={}
 
 function TA:new(o)
   o=o or {} -- create object if user does not provide one
@@ -55,7 +47,6 @@ end
 function ct()
   return clock.get_beat_sec()*clock.get_beats()
 end
-
 
 function lfo(period,dlo,dhi)
   local m=math.sin(2*math.pi*ct()/period)
@@ -228,18 +219,4 @@ function sound(s,ctx)
   end
 end
 
-
--- make a new time authority
-ta=TA:new()
--- add some chords and stuff for op-1
--- expand to 16 measure phrase
--- ta:expand("op-1",16)
--- ta:add("op-1",sound("Cm7 c4; Dmaj7 d6 . e6","print('<n>')"),1)
--- add kick on 2nd measure
--- ta:add("kick",r(e("print('kick',<qn>)",4),0),1)
--- for i=1,(2*16) do
--- ta:step()
--- end
-
--- table.print(r(e("print('kick')",1),4))
--- table.print(ta.patterns["kick"][4])
+return TA

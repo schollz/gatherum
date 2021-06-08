@@ -1,3 +1,7 @@
+function lfo(period,dlo,dhi)
+  local m=math.sin(2*math.pi*ct()/period)
+  return util.linlin(-1,1,dlo,dhi,m)
+end
 
 function os.time2()
 	if clock~=nil then 

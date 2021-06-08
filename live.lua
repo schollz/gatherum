@@ -5,16 +5,18 @@ engine.name="IDLive"
 -- this order matters
 include("gatherum/lib/utils")
 music=include("gatherum/lib/music")
-include("gatherum/lib/live")
+timeauthority_=include("gatherum/lib/timeauthority")
+ta=timeauthority_:new()
 lattice=require("lattice")
 midipal_=include("gatherum/lib/midipal")
-drummer=include("supertonic/lib/drummer")
+mp=midipal_:new()
 
 
 e=engine
 last_command=""
 
 function init()
+  local drummer=include("supertonic/lib/drummer")
   local patches_=include("supertonic/lib/patches")
   local patches=patches_:new()
   local patches_loaded=patches:load("/home/we/dust/data/supertonic/presets/default.mtpreset")
@@ -28,7 +30,8 @@ function init()
   hh:update_patch_manually(patches_loaded[3])
   oh:update_patch_manually(patches_loaded[4])
   clap:update_patch_manually(patches_loaded[5])
-  ta=TA:new()
+
+  -- scheduling
   sched=lattice:new{
     ppqn=16
   }
@@ -39,7 +42,6 @@ function init()
     end,
     division=1/16,
   })
-  mp=midipal_:new()
 
   -- add syncing for drums
   ta:add("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
@@ -142,7 +144,7 @@ function string.wrap(s,num)
     local s2=string.sub(s,1,num)
     table.insert(ss,s2)
     local s=string.sub(s,num+1,#s)
-    if s=="" then 
+    if s=="" then
       break
     end
   end
@@ -152,7 +154,7 @@ end
 function redraw()
   screen.clear()
   local print_command=last_command..ta.last_command
-  for i,s in ipairs(string.wrap(print_command,36)) do 
+  for i,s in ipairs(string.wrap(print_command,36)) do
     screen.move(1,8+12*(i-1))
     screen.text(s)
   end
