@@ -16,6 +16,7 @@ e=engine
 last_command=""
 
 function init()
+  audio.level_monitor(0)
   local drummer=include("supertonic/lib/drummer")
   local patches_=include("supertonic/lib/patches")
   local patches=patches_:new()
@@ -61,16 +62,10 @@ end
 function redraw()
   screen.clear()
   local print_command=last_command..ta.last_command
-  for i,s in ipairs(string.wrap(print_command,36)) do
+  for i,s in ipairs(string.wrap(print_command,28)) do
     screen.move(1,8+12*(i-1))
     screen.text(s)
   end
-  screen.move(32,32)
-  screen.text_center(ta.measure+1)
-  screen.move(32+32,32)
-  screen.text_center(ta.qn)
-  screen.move(32+32+32,32)
-  screen.text_center(ta.sn)
   screen.update()
 end
 

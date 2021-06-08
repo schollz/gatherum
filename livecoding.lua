@@ -1,19 +1,21 @@
 -- vim
--- nnoremap <C-enter> <esc>:silent.w !wscat>>out<enter>i
--- inoremap <C-enter> <esc>:silent.w !wscat>>out<enter>i
+-- nnoremap <C-c> <esc>:silent.w !wscat<enter>
+-- inoremap <C-c> <esc>:silent.w !wscat<enter>i
 -- vim run  :silent.w !wscat
 
 -- norns.script.load("code/tuner/tuner.lua"); crow.output[1].volts=3 -- A3
 norns.script.load("code/gatherum/live.lua")
 
-nature(1)
+nature(1.0)
 
+tapebreak()
+tapestop()
 
 -- closer
 params:set("clock_tempo",120)
 
 e.s_load(1,"/home/we/dust/audio/live/closer.wav"); 
-e.s_amp(1,0.5); 
+e.s_amp(1,0.0); 
 e.s_mov(1,3/28)
 play("closer",er("e.s_mov(1,3/28)",1),1)
 ta:expand("closer",64)
@@ -50,7 +52,7 @@ e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break_duke_120.wav",clock.get_tempo(),120)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break_west_120.wav",clock.get_tempo(),120)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break_pult_120.wav",clock.get_tempo(),120)
-e.bb_amp(0.3)
+e.bb_amp(0.0)
 ta:rm("bb")
 play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
 
