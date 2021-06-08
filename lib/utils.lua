@@ -4,11 +4,24 @@ function lfo(period,dlo,dhi)
 end
 
 function os.time2()
-	if clock~=nil then 
-		return clock.get_beat_sec()*clock.get_beats()
-	else
-		return os.time()
-	end
+  if clock~=nil then
+    return clock.get_beat_sec()*clock.get_beats()
+  else
+    return os.time()
+  end
+end
+
+function string.wrap(s,num)
+  ss={}
+  while #s>num do
+    local s2=string.sub(s,1,num)
+    table.insert(ss,s2)
+    s=string.sub(s,num+1,#s)
+    if s=="" then
+      break
+    end
+  end
+  return ss
 end
 
 function string.split(input_string,split_character)
@@ -28,27 +41,29 @@ end
 
 -- table.print prints the table
 function table.print(t)
-	local islist=false
-	for k,v in pairs(t) do 
-		if type(k)=="number" then
-			islist=true
-		end
-		break
-	end
-	if not islist then
-		for k,v in pairs(t) do 
-			print(k,v)
-		end
-	else
-		local s=""
-		for i,v in ipairs(t) do
-			if i==1 then
-				s="{"..v
-			else
-				s=s..","..v
-			end
-		end
-		s=s.."}"
-		print(s)
-	end
+  local islist=false
+  for k,v in pairs(t) do
+    if type(k)=="number" then
+      islist=true
+    end
+    break
+  end
+  if not islist then
+    for k,v in pairs(t) do
+      print(k,v)
+    end
+  else
+    local s=""
+    for i,v in ipairs(t) do
+      if i==1 then
+        s="{"..v
+      else
+        s=s..","..v
+      end
+    end
+    s=s.."}"
+    print(s)
+  end
 end
+
+--table.print(string.wrap("this is a long sentence",3))
