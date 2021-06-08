@@ -113,6 +113,10 @@ function er(item,num,size)
   if size==nil then
     size=16
   end
+  if num==nil then
+	  num=item
+item="1"
+  end
   local ray={}
   local bucket=0
   for i=1,size do

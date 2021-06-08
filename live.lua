@@ -128,6 +128,13 @@ function play(name,notes,i)
   name=rename(name)
   if name=="drone" then
     ta:add(name,sound(notes,"e.d_midi(<m>)"),i)
+  elseif name=="kick" then
+    for i,v in ipairs(notes) do
+	if v~="" then
+		notes[i]=name..":hit()"
+	end
+    end
+    ta:add(name,notes,i)
   elseif mp:ismidi(name) then
     ta:add(name,sound(snd,"mp:on('"..name.."',<m>,<sn>)"),i)
   end
