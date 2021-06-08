@@ -44,19 +44,6 @@ function TA:step()
   end
 end
 
-function ct()
-  return clock.get_beat_sec()*clock.get_beats()
-end
-
-function lfo(period,dlo,dhi)
-  local m=math.sin(2*math.pi*ct()/period)
-  return util.linlin(-1,1,dlo,dhi,m)
-end
-
-function TA:addm(name,snd,measure)
-  self:add(name,sound(snd,"mp:on('"..name.."',<m>,<sn>)"),measure)
-end
-
 -- add row or rows to the time authority for instrument s
 function TA:add(s,t,i)
   if i~=nil then
@@ -141,7 +128,7 @@ end
 
 
 -- adds two arrays
-function add(t,t2)
+function er_add(t,t2)
   local t3={}
   for i,v1 in ipairs(t) do
     local v2=t2[i]
@@ -155,7 +142,7 @@ function add(t,t2)
 end
 
 -- subtract two arrays
-function sub(t,t2)
+function er_sub(t,t2)
   local t3={}
   for i,v1 in ipairs(t) do
     local v2=t2[i]
