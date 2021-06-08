@@ -50,6 +50,38 @@ function init()
   sched:start()
 end
 
+function key(k,z)
+  if k==2 and z==1 then
+    sched:start()
+  elseif k==3 and z==1 then
+    sched:stop()
+  end
+end
+
+function redraw()
+  screen.clear()
+  local print_command=last_command..ta.last_command
+  for i,s in ipairs(string.wrap(print_command,36)) do
+    screen.move(1,8+12*(i-1))
+    screen.text(s)
+  end
+  screen.move(32,32)
+  screen.text_center(ta.measure+1)
+  screen.move(32+32,32)
+  screen.text_center(ta.qn)
+  screen.move(32+32+32,32)
+  screen.text_center(ta.sn)
+  screen.update()
+end
+
+function rerun()
+  norns.script.load(norns.state.script)
+end
+
+-----------
+-- shims --
+-----------
+
 function glitch(v)
   if v==nil then
     v=0
@@ -75,10 +107,6 @@ function nature(vol)
   for i=2,4 do
     e.s_amp(i,6*vol/(i*i))
   end
-end
-
-function break()
-  e.bl()
 end
 
 function rename(name)
@@ -130,43 +158,3 @@ function tapestart()
   end)
 end
 
-function key(k,z)
-  if k==2 and z==1 then
-    sched:start()
-  elseif k==3 and z==1 then
-    sched:stop()
-  end
-end
-
-function string.wrap(s,num)
-  ss={}
-  while #s>num do
-    local s2=string.sub(s,1,num)
-    table.insert(ss,s2)
-    local s=string.sub(s,num+1,#s)
-    if s=="" then
-      break
-    end
-  end
-  return ss
-end
-
-function redraw()
-  screen.clear()
-  local print_command=last_command..ta.last_command
-  for i,s in ipairs(string.wrap(print_command,36)) do
-    screen.move(1,8+12*(i-1))
-    screen.text(s)
-  end
-  screen.move(32,32)
-  screen.text_center(ta.measure+1)
-  screen.move(32+32,32)
-  screen.text_center(ta.qn)
-  screen.move(32+32+32,32)
-  screen.text_center(ta.sn)
-  screen.update()
-end
-
-function rerun()
-  norns.script.load(norns.state.script)
-end
