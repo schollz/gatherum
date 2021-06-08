@@ -46,6 +46,16 @@ function TA:step()
   end
 end
 
+function ct()
+  return clock.get_beat_sec()*clock.get_beats()
+end
+
+
+function lfo(period,dlo,dhi)
+  local m=math.sin(2*math.pi*ct()/period)
+  return util.linlin(-1,1,dlo,dhi,m)
+end
+
 function TA:addm(name,snd,measure)
   self:add(name,sound(snd,"mp:on('"..name.."',<m>,<sn>)"),measure)
 end

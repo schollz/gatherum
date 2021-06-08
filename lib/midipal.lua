@@ -28,6 +28,15 @@ function midipal:on(name,note,r)
   end
 end
 
+function midipal:cc(name,cc,val)
+  for k,v in pairs(self.midis) do
+    if string.find(k,name) then 
+      print("sending cc to "..k)
+      self.midis[k].conn:cc(cc,math.floor(val))
+    end
+  end
+end
+
 function midipal:off(name,r)
   for k,v in pairs(self.midis) do
     if string.find(k,name) then 
