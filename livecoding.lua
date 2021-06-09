@@ -142,14 +142,14 @@ play("geo","d2",2)
 stop("kick")
 play("kick",er(2),1)
 play("kick",er_add(er(2),rot(er(1),3)),2)
-kick.patch.level=-10
+kick.patch.level=1
 stop("hh")
-play("hh",er_sub(er(5),er(4)),1)
+play("hh",er_sub(er(16),er(4)),1)
 hh.patch.level=10
 
 stop("clap")
 play("clap",rot(er(2),4),1)
-clap.patch.level=1
+clap.patch.level=4
 
 stop("sh")
 play("sh","d5 b d b d g b d ",1)
