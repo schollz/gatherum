@@ -210,61 +210,61 @@ Engine_IDLive : CroneEngine {
 
 
 
-        // the drone
-        SynthDef("defDrone", {
-            arg freq=110.0,amp=0,out;
-            var local, in, ampcheck,movement, snd;
+        // // the drone
+        // SynthDef("defDrone", {
+        //     arg freq=110.0,amp=0,out;
+        //     var local, in, ampcheck,movement, snd;
 
-            amp=Lag.kr(amp,8);
+        //     amp=Lag.kr(amp,8);
 
-            in = Splay.ar(Pulse.ar(Lag.kr(freq*
-                LinLin.kr(SinOsc.kr(LFNoise0.kr(1)/2),-1,1,0.99,1.01),1),
-                LinLin.kr(SinOsc.kr(LFNoise0.kr(1)),-1,1,0.45,0.55)
-            )!1)/1;
-            in = Balance2.ar(in[0] ,in[1],SinOsc.kr(
-                LinLin.kr(LFNoise0.kr(0.1),-1,1,0.05,0.2)
-            )*0.1);
+        //     in = Splay.ar(Pulse.ar(Lag.kr(freq*
+        //         LinLin.kr(SinOsc.kr(LFNoise0.kr(1)/2),-1,1,0.99,1.01),1),
+        //         LinLin.kr(SinOsc.kr(LFNoise0.kr(1)),-1,1,0.45,0.55)
+        //     )!1)/1;
+        //     in = Balance2.ar(in[0] ,in[1],SinOsc.kr(
+        //         LinLin.kr(LFNoise0.kr(0.1),-1,1,0.05,0.2)
+        //     )*0.1);
 
-            // from tape example
-            // https://depts.washington.edu/dxscdoc/Help/Classes/LocalOut.html
-            ampcheck = Amplitude.kr(Mix.ar(in));
-            in = in * (ampcheck > 0.02); // noise gate
-            local = LocalIn.ar(2);
-            local = OnePole.ar(local, 0.4);
-            local = OnePole.ar(local, -0.08);
-            local = Rotate2.ar(local[0], local[1],0.2);
-            local = DelayN.ar(local, 0.3,
-                VarLag.kr(LinLin.kr(LFNoise0.kr(0.1),-1,1,0.15,0.3),1/0.1,warp:\sine)
-            );
-            local = LeakDC.ar(local);
-            local = ((local + in) * 1.25).softclip;
+        //     // from tape example
+        //     // https://depts.washington.edu/dxscdoc/Help/Classes/LocalOut.html
+        //     ampcheck = Amplitude.kr(Mix.ar(in));
+        //     in = in * (ampcheck > 0.02); // noise gate
+        //     local = LocalIn.ar(2);
+        //     local = OnePole.ar(local, 0.4);
+        //     local = OnePole.ar(local, -0.08);
+        //     local = Rotate2.ar(local[0], local[1],0.2);
+        //     local = DelayN.ar(local, 0.3,
+        //         VarLag.kr(LinLin.kr(LFNoise0.kr(0.1),-1,1,0.15,0.3),1/0.1,warp:\sine)
+        //     );
+        //     local = LeakDC.ar(local);
+        //     local = ((local + in) * 1.25).softclip;
 
-            // for the drone
-            local = LPF.ar(local,
-                VarLag.kr(LinLin.kr(LFNoise0.kr(0.3),-1,1,ArrayMin.kr([freq,80]),16000),1/0.3,warp:\sine)
-            );
-            LocalOut.ar(local*
-                VarLag.kr(LinLin.kr(LFNoise0.kr(2),-1,1,1.01,1.5),1/2,warp:\sine)
-            );
-            snd = Balance2.ar(local[0] * 0.2,local[1]*0.2,SinOsc.kr(
-                LinLin.kr(LFNoise0.kr(0.1),-1,1,0.05,0.2)
-            )*0.1)*amp;
-            Out.ar(out,snd);
-        }).add;
+        //     // for the drone
+        //     local = LPF.ar(local,
+        //         VarLag.kr(LinLin.kr(LFNoise0.kr(0.3),-1,1,ArrayMin.kr([freq,80]),16000),1/0.3,warp:\sine)
+        //     );
+        //     LocalOut.ar(local*
+        //         VarLag.kr(LinLin.kr(LFNoise0.kr(2),-1,1,1.01,1.5),1/2,warp:\sine)
+        //     );
+        //     snd = Balance2.ar(local[0] * 0.2,local[1]*0.2,SinOsc.kr(
+        //         LinLin.kr(LFNoise0.kr(0.1),-1,1,0.05,0.2)
+        //     )*0.1)*amp;
+        //     Out.ar(out,snd);
+        // }).add;
 
 
-        context.server.sync;
+        // context.server.sync;
 
-        synDrone = Synth("defDrone",[\out,mainBus.index],target:context.xg);
+        // synDrone = Synth("defDrone",[\out,mainBus.index],target:context.xg);
 
-        context.server.sync;
+        // context.server.sync;
 
-        this.addCommand("d_amp","f", { arg msg;
-            synDrone.set(\amp,msg[1]);
-        });
-        this.addCommand("d_midi","i", { arg msg;
-            synDrone.set(\freq,msg[1].midicps);
-        });
+        // this.addCommand("d_amp","f", { arg msg;
+        //     synDrone.set(\amp,msg[1]);
+        // });
+        // this.addCommand("d_midi","i", { arg msg;
+        //     synDrone.set(\freq,msg[1].midicps);
+        // });
 
         SynthDef("supertonic", {
             arg out,
