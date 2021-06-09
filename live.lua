@@ -38,10 +38,14 @@ function init()
   sched=lattice:new{
     ppqn=16
   }
+  local redrawer=1
   sched:new_pattern({
     action=function(t)
       ta:step()
-      redraw()
+      redrawer=redrawer+1
+      if redrawer%16==0 then 
+	redraw()
+end
     end,
     division=1/16,
   })
@@ -126,6 +130,8 @@ function play(name,notes,i)
   name=rename(name)
   if name=="drone" then
     ta:add(name,sound(notes,"e.d_midi(<m>)"),i)
+  elseif name=="pp" then
+    ta:add(name,sound(notes,"e.pp_midi(<m>)"),i)
   elseif name=="kick" or name=="hh" or name=="clap" or name=="sd" or name=="oh" then
     for i,v in ipairs(notes) do
 	if v~="" then

@@ -9,14 +9,13 @@ Engine_IDLive : CroneEngine {
     var synDrone;
     var synSupertonic;
     var synVoice=0;
-    var maxVoices=7;
+    var maxVoices=5;
     var bufBreaklive;
     var synBreakliveRec;
     var synBreaklivePlay;
     var mainBus;
     var synSample;
     var bufSample;
-
     // IDLive ^
 
     *new { arg context, doneCallback;
@@ -81,14 +80,14 @@ Engine_IDLive : CroneEngine {
             synBreaklivePlay.set(\ampmin,msg[1])
         });
 
-	context.server.sync;
+	   context.server.sync;
 
-        bufSample=Array.fill(5,{arg i;
+        bufSample=Array.fill(4,{arg i;
             Buffer.new(context.server);
         });
-        synSample=Array.fill(5,{arg i;{
+        synSample=Array.fill(4,{arg i;{
                 arg amp=0,bufnum=0,t_trig=1,start=0,out=0;
-                Out.ar(out,PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),t_trig,start*BufFrames.kr(bufnum),loop:1)*VarLag.kr(amp,20,wrap:\linear));
+                Out.ar(out,PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),t_trig,start*BufFrames.kr(bufnum),loop:1)*VarLag.kr(amp,20,warp:\linear));
             }.play(target:context.xg);
         });
 
@@ -266,8 +265,6 @@ Engine_IDLive : CroneEngine {
         this.addCommand("d_midi","i", { arg msg;
             synDrone.set(\freq,msg[1].midicps);
         });
-        
-
 
         SynthDef("supertonic", {
             arg out,
@@ -461,7 +458,7 @@ Engine_IDLive : CroneEngine {
         synBreaklivePlay.free;
         synBreakliveRec.free;
         mainBus.free;
-        5.do({arg i; bufSample[i].free});
-        5.do({arg i; synSample[i].free});
+        4.do({arg i; bufSample[i].free});
+        4.do({arg i; synSample[i].free});
     }
 }

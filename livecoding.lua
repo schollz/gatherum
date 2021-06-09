@@ -6,7 +6,7 @@
 -- norns.script.load("code/tuner/tuner.lua"); crow.output[1].volts=3 -- A3
 norns.script.load("code/gatherum/live.lua")
 
-nature(1.0)
+nature(0.0)
 
 tapebreak()
 tapestop()
@@ -15,14 +15,14 @@ tapestop()
 params:set("clock_tempo",120)
 
 e.s_load(1,"/home/we/dust/audio/live/closer.wav"); 
-e.s_amp(1,0.0); 
+e.s_amp(1,0); 
 e.s_mov(1,3/28)
 play("closer",er("e.s_mov(1,3/28)",1),1)
 ta:expand("closer",64)
 ta:rm("closer")
 
 stop("sh")
-play("sh")
+e.sh_amp(0.5)
 play("sh","ab6 bb5 eb5 ab6 eb bb . .",1)
 play("sh",". b6 . b5 e5 g#6 eb b",2)
 play("sh","gb6 db5 bb6 db bb . .",3)
@@ -39,7 +39,7 @@ play("op1","Gb:3",7)
 play("op1","Db/F:3",8)
 
 stop("drone")
-e.d_amp(0.0)
+e.d_amp(0.1)
 play("drone","eb5",1)
 play("drone","bb5",5)
 play("drone","db4",8)
@@ -55,7 +55,7 @@ e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break_duke_120.wav",clock.get_tempo(),120)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break_west_120.wav",clock.get_tempo(),120)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break_pult_120.wav",clock.get_tempo(),120)
-e.bb_amp(0.0)
+e.bb_amp(0.2)
 ta:rm("bb")
 play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
 
@@ -105,6 +105,7 @@ params:set("clock_tempo",168)
 sched:start()
 sched:stop()
 
+nature(0)
 e.s_amp(1,0)
 
 stop("op1")
@@ -146,7 +147,7 @@ play("sh","a5 c# e c# e5 e a6 c# ",4)
 
 
 stop("drone")
-e.d_amp(0.3)
+e.d_amp(0)
 play("drone","d5",1)
 play("drone","f#5",3)
 play("drone","f#5 g",5)
@@ -159,7 +160,7 @@ tapebreak()
 e.bb_load("/home/we/dust/audio/breakbeat/breakbeat_168bpm_4beats.wav",clock.get_tempo(),168)
 e.bb_load("/home/we/dust/audio/live/breakbeat168bpm.wav",clock.get_tempo(),168)
 e.bb_load("/home/we/dust/audio/live/breakbeat_165bpm.wav",clock.get_tempo(),165)
-e.bb_amp(0.3)
+e.bb_amp(0.0)
 play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
 play("bbb",er("if math.random()<0.1 then; v=math.random(); e.bb_break(v,v+math.random()/40+0.01) end",4),1)
 
