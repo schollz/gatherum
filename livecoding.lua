@@ -15,16 +15,18 @@ tapestop()
 params:set("clock_tempo",120)
 
 e.s_load(1,"/home/we/dust/audio/live/closer.wav"); 
-e.s_amp(1,0.8); 
+e.s_amp(1,0.5); 
 e.s_mov(1,3/28)
-play("closer",er("e.s_mov(1,3/28)",1),1)
-expand("closer",64)
-ta:rm("closer")
+e.s_mov(1,26/28)
+ta:expand("closer",64)
+play("closer",er("engine.s_mov(1,3/28)",1),1)
+play("closer",er("e.s_mov(1,26/28)",1),4)
+stop("closer")
 
 crow.output[2].action="{ to(10,2),to(0,6) }"; crow.output[2]()
 crow.output[3].action="lfo(3.1415,10)"; crow.output[3]()
 stop("crow")
-expand("crow",8)
+ta:expand("crow",8)
 play("crow","ab3",1)
 play("crow","db4",3)
 play("crow",". eb4",5)
@@ -32,7 +34,7 @@ play("crow","gb4",7)
 play("crow","gb4",8)
 
 stop("crow")
-crow.output[2].action="{ to(10,0),to(0,0.1) }"; crow.output[2]()
+crow.output[2].action="{ to(10,0),to(0,0.07) }"; crow.output[2]()
 play("crow","ab4 ab4 bb3 eb3 ab eb bb bb3 eb ab eb db bb ab eb bb ",1)
 crow.output[2].action="{ to(10,0),to(0,0.2) }"; crow.output[2]()
 play("crow","bb bb3 eb ab eb db bb ab",1)
@@ -67,7 +69,7 @@ e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break_duke_120.wav",clock.get_tempo(),120)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break_west_120.wav",clock.get_tempo(),120)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break_pult_120.wav",clock.get_tempo(),120)
-e.bb_amp(0.7)
+e.bb_amp(0.5)
 ta:rm("bb")
 play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
 

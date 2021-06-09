@@ -33,22 +33,28 @@ function TA:step()
       if cmd~=nil then
         cmd=cmd:gsub("<qn>",self.qn)
         cmd=cmd:gsub("<sn>",self.sn)
-        -- print(self.measure+1,self.qn,self.sn,self.pulse,k,cmd)
+        print(self.measure+1,self.qn,self.sn,self.pulse,k,cmd)
         next_command=string.format("%s %s/%s ",next_command,k,cmd)
         rc(cmd)
       end
     end
   end
   if next_command~="" then
-    self.last_command=string.format("%d/%d/%d %s",self.measure+1,self.qn,self.pulse,next_command)
+    self.last_command=self.last_command..string.format("%d/%d/%d %s",self.measure+1,self.qn,self.pulse,next_command)
   end
+end
+
+function TA:get_last()
+  local lc=self.last_command
+  self.last_command=""
+  return lc
 end
 
 -- add row or rows to the time authority for instrument s
 function TA:add(s,t,i)
   if i~=nil then
     self:expand(s,i)
-    if #t[1]==16 and #t>1 then
+    if type(t[1])=="table" then
       for j,t2 in ipairs(t) do
         self.patterns[s][i+j-1]=t2
       end
@@ -60,7 +66,7 @@ function TA:add(s,t,i)
   if self.patterns[s]==nil then
     self.patterns[s]={}
   end
-  if #t[1]==16 and #t>1 then
+  if type(t[1])=="table" then
     for _,t2 in ipairs(t) do
       table.insert(self.patterns[s],t2)
     end

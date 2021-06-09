@@ -43,7 +43,7 @@ function init()
     action=function(t)
       ta:step()
       redrawer=redrawer+1
-      if redrawer%16==0 then 
+      if redrawer%10==0 then 
 	redraw()
 end
     end,
@@ -52,7 +52,6 @@ end
 
   -- add syncing for drums
   ta:add("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
-
   -- start scheduler
   sched:start()
 end
@@ -68,8 +67,8 @@ end
 function redraw()
   screen.clear()
   screen.font_size(6)
-  local print_command=last_command..ta.last_command
-  for i,s in ipairs(string.wrap(print_command,32)) do
+  local print_command=last_command..ta:get_last()
+  for i,s in ipairs(string.wrap(print_command,36)) do
     screen.move(1,8+8*(i-1))
     screen.text(s)
   end
@@ -136,13 +135,15 @@ function play(name,notes,i)
     ta:add(name,sound(notes,'crow.output[1].volts=<v>;crow.output[2]()'),i)
   elseif name=="kick" or name=="hh" or name=="clap" or name=="sd" or name=="oh" then
     for i,v in ipairs(notes) do
-	if v~="" then
-		notes[i]=name..":hit()"
-	end
+    	if v~="" then
+    		notes[i]=name..":hit()"
+    	end
     end
     ta:add(name,notes,i)
   elseif mp:ismidi(name) then
     ta:add(name,sound(notes,"mp:on('"..name.."',<m>,<sn>)"),i)
+  else
+    ta:add(name,notes,i)
   end
 end
 
