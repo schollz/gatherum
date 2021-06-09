@@ -22,6 +22,21 @@ use these as-is. or play with them. change them. install them, delete them. brea
 
 the code serves as documentation, and I can fill in the gaps by answering questions.
 
+
+#### `live.lua`
+
+this is a live coding foundation.
+
+maiden commands from vim:
+
+`.vimrc`:
+
+```vim
+set underline
+nnoremap <C-c> <esc>:silent.w !wscat<enter>
+inoremap <C-c> <esc>:silent.w !wscat<enter>i
+```
+
 ### download
 
 ```
