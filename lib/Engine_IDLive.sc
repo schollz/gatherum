@@ -300,37 +300,39 @@ Engine_IDLive : CroneEngine {
             // wn1=SoundIn.ar(0); 
             // wn2=SoundIn.ar(1);
             wn1=WhiteNoise.ar();
-            wn2=WhiteNoise.ar();
             wn1=Clip.ar(wn1*100,-1,1);
-            wn2=Clip.ar(wn2*100,-1,1);
+            wn2=wn1;
+
             clapFrequency=DC.kr((4311/(nEnvAtk*1000+28.4))+11.44); // fit using matlab
             // determine who should free
             oscFreeSelf=DC.kr(Select.kr(((oscAtk+oscDcy)>(nEnvAtk+nEnvDcy)),[0,2]));
 
             // define pitch modulation1
-            pitchMod=Select.ar(modMode,[
-                Decay.ar(Impulse.ar(0.0001),(1/(2*modRate))), // decay
-                SinOsc.ar(-1*modRate), // sine
-                Lag.ar(LFNoise0.ar(4*modRate),1/(4*modRate)), // random
-            ]);
+            pitchMod=Decay.ar(Impulse.ar(0.0001),(1/(2*modRate)));
+            // pitchMod=Select.ar(modMode,[
+            //     Decay.ar(Impulse.ar(0.0001),(1/(2*modRate))), // decay
+            //     SinOsc.ar(-1*modRate), // sine
+            //     Lag.ar(LFNoise0.ar(4*modRate),1/(4*modRate)), // random
+            // ]);
 
             // mix in the the pitch mod
             pitchMod=pitchMod*modAmt/2*(LinLin.kr(modVel,0,200,2,0)*vel);
             oscFreq=((oscFreq).cpsmidi+pitchMod).midicps;
 
             // define the oscillator
-            osc=Select.ar(oscWave,[
-                SinOsc.ar(oscFreq),
-                LFTri.ar(oscFreq,mul:0.5),
-                SawDPW.ar(oscFreq,mul:0.5),
-            ]);
-            osc=Select.ar(modMode>1,[
-                osc,
-                SelectX.ar(oscDcy<0.1,[
-                    LPF.ar(wn2,modRate),
-                    osc,
-                ])
-            ]);
+            osc=SinOsc.ar(oscFreq);
+            // osc=Select.ar(oscWave,[
+            //     SinOsc.ar(oscFreq),
+            //     LFTri.ar(oscFreq,mul:0.5),
+            //     SawDPW.ar(oscFreq,mul:0.5),
+            // ]);
+            // osc=Select.ar(modMode>1,[
+            //     osc,
+            //     SelectX.ar(oscDcy<0.1,[
+            //         LPF.ar(wn2,modRate),
+            //         osc,
+            //     ])
+            // ]);
 
 
             // add oscillator envelope
@@ -344,22 +346,23 @@ Engine_IDLive : CroneEngine {
             noz=wn1;
 
             // optional stereo noise
-            noz=Select.ar(nStereo,[wn1,[wn1,wn2]]);
-
+            // noz=Select.ar(nStereo,[wn1,[wn1,wn2]]);
 
             // define noise envelope
             nozEnv=Select.ar(nEnvMod,[
                 EnvGen.ar(Env.new(levels: [0.001, 1, 0.0001], times: [nEnvAtk, nEnvDcy],curve:\exponential),doneAction:(2-oscFreeSelf)),
-                EnvGen.ar(Env.new([0.0001,1,0.9,0.0001],[nEnvAtk,nEnvDcy*decayer,nEnvDcy*(1-decayer)],\linear)),
+                DC.ar(1), //EnvGen.ar(Env.new([0.0001,1,0.9,0.0001],[nEnvAtk,nEnvDcy*decayer,nEnvDcy*(1-decayer)],\linear)),
                 Decay.ar(Impulse.ar(clapFrequency),1/clapFrequency,0.85,0.15)*Trig.ar(1,nEnvAtk+0.001)+EnvGen.ar(Env.new(levels: [0.001, 0.001, 1,0.0001], times: [nEnvAtk,0.001, nEnvDcy],curve:\exponential)),
             ]);
 
             // apply noise filter
             nozPostF=Select.ar(nFilMod,[
-                BLowPass.ar(noz,nFilFrq,Clip.kr(1/nFilQ,0.5,3)),
+                DC.ar(1),
+                // BLowPass.ar(noz,nFilFrq,Clip.kr(1/nFilQ,0.5,3)),
                 BBandPass.ar(noz,nFilFrq,Clip.kr(2/nFilQ,0.1,6)),
                 BHiPass.ar(noz,nFilFrq,Clip.kr(1/nFilQ,0.5,3))
             ]);
+
             // special Q
             nozPostF=SelectX.ar((0.1092*(nFilQ.log)+0.0343),[nozPostF,SinOsc.ar(nFilFrq)]);
 
@@ -390,9 +393,6 @@ Engine_IDLive : CroneEngine {
 
             // free self if its quiet
             FreeSelf.kr((Amplitude.kr(snd)<0.001)*TDelay.kr(DC.kr(1),0.03));
-
-            // apply some global fx
-            snd=RLPF.ar(snd,fx_lowpass_freq,fx_lowpass_rq);
 
             Out.ar(out, snd);
         }).add;

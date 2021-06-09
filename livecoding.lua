@@ -142,28 +142,37 @@ play("geo","d2",2)
 stop("kick")
 play("kick",er(2),1)
 play("kick",er_add(er(2),rot(er(1),3)),2)
-kick.patch.level=1
+kick.patch.level=-1
 stop("hh")
 play("hh",er_sub(er(16),er(4)),1)
-hh.patch.level=10
+hh.patch.level=1
 
+stop("sd")
+play("sd",er_add(rot(er(2),4),rot(er(4),2)),1)
+sd.patch.distAmt=58; sd.patch.level=-5; sd.patch.nEnvDcy=220;
 stop("clap")
 play("clap",rot(er(2),4),1)
-clap.patch.level=4
+clap.patch.level=0
 
-stop("sh")
-play("sh","d5 b d b d g b d ",1)
+stop("crow")
+crow.output[2].action="{ to(10,0),to(0,0.05) }"; crow.output[2]()
+play("crow","d5 b d b d g b d d5  b d d5 b b g g",1)
 play("sh","b5 d f#5 b d b f#6 d",2)
 play("sh","f#5 a5 c#6 c# a c#5 f# a",3)
 play("sh","a5 c# e c# e5 e a6 c# ",4)
 
 
-stop("drone")
-e.d_amp(0)
-play("drone","d5",1)
-play("drone","f#5",3)
-play("drone","f#5 g",5)
-play("drone","b4",8)
+crow.output[2].action="{ to(10,2),to(0,6) }"; crow.output[2]()
+crow.output[3].action="lfo(3.1415,10)"; crow.output[3]()
+stop("crow")
+play("crow","d3",1)
+play("crow","f#3",3)
+play("crow","f#3 g",5)
+play("crow","b2",8)
+play("crow","b2",9)
+play("crow","c#4",10)
+play("crow","e4",12)
+play("crow","a3",14)
 
 tapestop()
 tapestart()
@@ -172,7 +181,7 @@ tapebreak()
 e.bb_load("/home/we/dust/audio/breakbeat/breakbeat_168bpm_4beats.wav",clock.get_tempo(),168)
 e.bb_load("/home/we/dust/audio/live/breakbeat168bpm.wav",clock.get_tempo(),168)
 e.bb_load("/home/we/dust/audio/live/breakbeat_165bpm.wav",clock.get_tempo(),165)
-e.bb_amp(0.0)
+e.bb_amp(0.6)
 play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
 play("bbb",er("if math.random()<0.1 then; v=math.random(); e.bb_break(v,v+math.random()/40+0.01) end",4),1)
 
