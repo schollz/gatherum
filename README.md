@@ -25,17 +25,28 @@ the code serves as documentation, and I can fill in the gaps by answering questi
 
 #### `live.lua`
 
-this is a live coding foundation.
+this is a live coding foundation, using maiden + norns scripts as the code.
 
-maiden commands from vim:
+lines from a norns script can be quickly and easily run using vim.
 
-`.vimrc`:
+to use with vim, first download wscat - a utility for piping commands to a websocket server (maiden).
+
+```
+wget https://... 
+chmod +x
+sudo mv wscat /usr/local/bin/
+```
+
+then you can edit your `.vimrc` file to include these lines:
 
 ```vim
 set underline
 nnoremap <C-c> <esc>:silent.w !wscat<enter>
 inoremap <C-c> <esc>:silent.w !wscat<enter>i
 ```
+
+now whenever you use the key combo <kbd>ctl</kbd>+<kbd>c</kbd> it will send the current line in vim into maiden!
+
 
 ### download
 
