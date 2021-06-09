@@ -26,34 +26,8 @@ Engine_IDLive : CroneEngine {
     alloc {
         // IDLive specific v0.0.1
         // break live
-        bufSample=Array.fill(5,{arg i;
-            Buffer.new(context.server);
-        });
-        synSample=Array.fill(5,{arg i;{
-                arg amp=0,bufnum=0,t_trig=1,start=0;
-                PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),t_trig,start*BufFrames.kr(bufnum),loop:1)*VarLag.kr(amp,20,wrap:\linear)
-            }.play(target:context.xg);
-        });
-
-        this.addCommand("s_load","is", { arg msg;
-            bufSample[msg[1]-1].free;
-            ("loading "++msg[2]).postln;
-            bufSample[msg[1]-1] = Buffer.read(context.server,msg[2],action:{
-                ("loaded "++msg[2]).postln;
-                synSample[msg[1]-1].set(\bufnum,bufSample[msg[1]-1].bufnum,\t_trig,1);
-            });
-        });
-        
-	   this.addCommand("s_amp","if", { arg msg;
-            synSample[msg[1]-1].set(\amp,msg[2]);
-        });
-
-        this.addCommand("s_mov","if", { arg msg;
-            synSample[msg[1]-1].set(\start,msg[2],\t_trig,1);
-        });
-
-
         mainBus=Bus.audio(context.server,2);
+
         bufBreaklive = Buffer.alloc(context.server, context.server.sampleRate * 18.0, 2);
 
         context.server.sync;
@@ -82,7 +56,7 @@ Engine_IDLive : CroneEngine {
             );
             snd=BufRd.ar(2,bufnum,pos,interpolation:4);
             snd=(crossfade*snd)+(LinLin.kr(1-crossfade,0,1,ampmin,1)*(SoundIn.ar([0,1])+In.ar(in,2)));
-            Out.ar(0,snd*amp);
+            Out.ar(0,(snd*0.5).tanh);
         }).add;
 
         context.server.sync;
@@ -106,6 +80,35 @@ Engine_IDLive : CroneEngine {
         this.addCommand("bl_ampmin","f", { arg msg;
             synBreaklivePlay.set(\ampmin,msg[1])
         });
+
+	context.server.sync;
+
+        bufSample=Array.fill(5,{arg i;
+            Buffer.new(context.server);
+        });
+        synSample=Array.fill(5,{arg i;{
+                arg amp=0,bufnum=0,t_trig=1,start=0,out=0;
+                Out.ar(out,PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),t_trig,start*BufFrames.kr(bufnum),loop:1)*VarLag.kr(amp,20,wrap:\linear));
+            }.play(target:context.xg);
+        });
+
+        this.addCommand("s_load","is", { arg msg;
+            bufSample[msg[1]-1].free;
+            ("loading "++msg[2]).postln;
+            bufSample[msg[1]-1] = Buffer.read(context.server,msg[2],action:{
+                ("loaded "++msg[2]).postln;
+                synSample[msg[1]-1].set(\out,mainBus,\bufnum,bufSample[msg[1]-1].bufnum,\t_trig,1);
+            });
+        });
+        
+	   this.addCommand("s_amp","if", { arg msg;
+            synSample[msg[1]-1].set(\amp,msg[2]);
+        });
+
+        this.addCommand("s_mov","if", { arg msg;
+            synSample[msg[1]-1].set(\start,msg[2],\t_trig,1);
+        });
+
 
         // break beat
 

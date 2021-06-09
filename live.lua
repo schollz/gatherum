@@ -22,6 +22,8 @@ function init()
   local patches=patches_:new()
   local patches_loaded=patches:load("/home/we/dust/data/supertonic/presets/default.mtpreset")
   kick=drummer:new({id=1})
+  kick.patch.oscDcy=500
+  kick.patch.level=5
   sd=drummer:new({id=2})
   hh=drummer:new({id=3})
   oh=drummer:new({id=4})
@@ -61,9 +63,10 @@ end
 
 function redraw()
   screen.clear()
+  screen.font_size(6)
   local print_command=last_command..ta.last_command
-  for i,s in ipairs(string.wrap(print_command,28)) do
-    screen.move(1,8+12*(i-1))
+  for i,s in ipairs(string.wrap(print_command,32)) do
+    screen.move(1,8+8*(i-1))
     screen.text(s)
   end
   screen.update()
@@ -107,7 +110,7 @@ end
 function rename(name)
   if name:find("ge")==1 then
     name="usb"
-  elseif name:find("ge")==1 then
+  elseif name:find("sh")==1 then
     name="bou"
   elseif name:find("op")==1 then
     name="op1"
@@ -123,7 +126,7 @@ function play(name,notes,i)
   name=rename(name)
   if name=="drone" then
     ta:add(name,sound(notes,"e.d_midi(<m>)"),i)
-  elseif name=="kick" then
+  elseif name=="kick" or name=="hh" or name=="clap" or name=="sd" or name=="oh" then
     for i,v in ipairs(notes) do
 	if v~="" then
 		notes[i]=name..":hit()"
@@ -131,7 +134,7 @@ function play(name,notes,i)
     end
     ta:add(name,notes,i)
   elseif mp:ismidi(name) then
-    ta:add(name,sound(snd,"mp:on('"..name.."',<m>,<sn>)"),i)
+    ta:add(name,sound(notes,"mp:on('"..name.."',<m>,<sn>)"),i)
   end
 end
 
