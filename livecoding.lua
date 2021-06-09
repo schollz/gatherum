@@ -21,6 +21,7 @@ play("closer",er("e.s_mov(1,3/28)",1),1)
 ta:expand("closer",64)
 ta:rm("closer")
 
+play("crow","eb5 bb5",1)
 stop("sh")
 e.sh_amp(0.5)
 play("sh","ab6 bb5 eb5 ab6 eb bb . .",1)

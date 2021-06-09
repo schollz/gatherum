@@ -132,6 +132,8 @@ function play(name,notes,i)
     ta:add(name,sound(notes,"e.d_midi(<m>)"),i)
   elseif name=="pp" then
     ta:add(name,sound(notes,"e.pp_midi(<m>)"),i)
+  elseif name=="crow" then
+    ta:add(name,sound(notes,'crow.output[1].volts=<v>;crow.output[2]()'),i)
   elseif name=="kick" or name=="hh" or name=="clap" or name=="sd" or name=="oh" then
     for i,v in ipairs(notes) do
 	if v~="" then
