@@ -128,7 +128,8 @@ play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
 play("bbb",er("if math.random()<0.1 then; v=math.random(); e.bb_break(v,v+math.random()/40+0.01) end",4),1)
 
 -- tock
-
+e.s_load(1,"/home/we/dust/audio/ladadadida.wav"); 
+e.s_amp(1,0.5)
 params:set("clock_tempo",168)
 sched:start()
 sched:stop()
@@ -209,6 +210,7 @@ e.bb_load("/home/we/dust/audio/live/breakbeat_165bpm.wav",clock.get_tempo(),165)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm165/beats8_bpm165_Duplex_Break_165_PL.wav",clock.get_tempo(),165)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm165/beats8_bpm165_Rope_Break_165_PL.wav",clock.get_tempo(),165)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm165/beats8_bpm165_Absorb_Break_165_PL.wav",clock.get_tempo(),165)
+e.bb_load("/home/we/dust/audio/ladadadida.wav",clock.get_tempo(),clock.get_tempo())
 e.bb_amp(0.8)
 e.bb_amp(0)
 play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
