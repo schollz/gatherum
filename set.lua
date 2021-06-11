@@ -1,5 +1,9 @@
 norns.script.load("code/gatherum/live.lua")
 
+tapestop()
+tapestart()
+tapebreak()
+
 params:set("clock_tempo",120)
 
 play("bou","Abm/Eb:3",1)
@@ -9,7 +13,7 @@ play("bou","Ebm:3",4)
 
 e=engine
 
-e.s_load(1,"/home/we/dust/closer.wav"); 
+e.s_load(1,"/home/we/dust/closer.wav");
 e.s_amp(1,1.0);
 play("closer",er("engine.s_mov(1,3/28)",1),1)
 stop("closer")
@@ -18,12 +22,12 @@ ta:expand("closer",64)
 play("kick",er(2),1)
 play("kick",er_add(er(2),rot(er(1),3)),2)
 play("hh",er_sub(er(13),er(4)),1)
+play("clap",rot(er(2),4),1)
 
 play("bou","Abm/Eb:3",5)
 play("bou","E:3",6)
 play("bou","Gb:3",7)
 play("bou","Db/F:3",8)
-
 
 play("closer",er("e.s_mov(1,26/28)",1),4)
 
@@ -36,15 +40,14 @@ play("usb","eb1",4)
 
 e.s_amp(1,0.0);
 
-crow.output[2].action="{ to(10,2),to(0,6) }"; crow.output[2]()
-crow.output[3].action="lfo(3,10)"; crow.output[3]()
+crow.output[2].action="{ to(10,2),to(0,6) }";crow.output[2]()
+crow.output[3].action="lfo(3,10)";crow.output[3]()
 play("crow","ab3",1)
 play("crow","gb4",3)
 play("crow","bb4",4)
 
-crow.output[2].action="{ to(10,0),to(0,0.07) }"; crow.output[2]()
+crow.output[2].action="{ to(10,0),to(0,0.07) }";crow.output[2]()
 play("crow",shufexpand("ab4 bb3 eb3 ab3 bb4",16),1)
-
 
 stop("usb")
 play("usb",shufexpand("ab1 ab1 ab1 eb2 eb2 ."),1)
@@ -65,90 +68,51 @@ e.bb_amp(0.0)
 play("bbr",er("if math.random()<0.2 then e.bb_rev(1) end",5))
 play("bbb",er("if math.random()<0.1 then; v=math.random(); e.bb_break(v,v+math.random()/40+0.01) end",4),1)
 
-clock.run(function() clock.sleep(1); tapestop(); clock.sleep(3); tapestart() end)
-clock.run(function() clock.sleep(1); tapebreak() clock.sleep(1); tapebreak() end)
+clock.run(function() clock.sleep(1);tapestop();clock.sleep(3);tapestart() end)
+clock.run(function() clock.sleep(1);tapebreak() clock.sleep(1);tapebreak() end)
 tapestop()
 tapestart()
 
-
-
 -- tock
 params:set("clock_tempo",168)
-sched:start()
-sched:stop()
 
-e.s_load(1,"/home/we/dust/audio/ladadadida.wav"); 
+e.s_load(1,"/home/we/dust/audio/ladadadida.wav");
 play("la",er("engine.s_mov(1,0)",1),1)
 ta:expand("la",8)
 e.s_amp(1,0.2)
-e.s_amp(1,0.0)
 
-nature(1.0)
-e.s_amp(1,0)
-
-stop("bou")
-ta:expand("bou",8)
 play("bou","G/B:3",1)
 play("bou","Bm:3",3)
 play("bou","F#m/A:3",5)
 play("bou","Amaj:3",7)
 play("bou","Amaj:3",8)
 
-stop("op1")
-play("op1","f#5 . e5 c#5 f#5 . e5 c#5",1)
-play("op1","f#5 . e5 c#5 f#5 . e5 c#5",2)
-play("op1","f#5 . d5 c#5 f#5 . d5 c#5",3)
-play("op1","f#5 . d5 c#5 f#5 . d5 c#5",4)
-play("op1","a5 . d5 c#5 a5 . d5 c#5",5)
-play("op1","a5 . d5 c#5 a5 . d5 c#5",6)
-play("op1","b5 . e5 c#5 b5 . e5 c#5",7)
-play("op1","b5 . e5 c#5 b5 b5 b5 b5",8)
+play("usb","b2",1)
+play("usb","d2",2)
 
+play("op1","f#5 . e5 c#5 f#5 . e5 c#5",1/2)
+play("op1","f#5 . d5 c#5 f#5 . d5 c#5",3/4)
+play("op1","a5 . d5 c#5 a5 . d5 c#5",5/6)
+play("op1","b5 . e5 c#5 b5 . e5 c#5",7/8)
 
-stop("usb")
 play("usb","b2 d3 b2 a2 f#3 g4 g4 a4",1)
 play("usb","d3 e3 f#4 a4 g4 f#4 b1 a1",2)
 play("usb","b2 . . . b2 . . .  e3 . d3 . f#3 . g3 .",1)
 play("usb",". . d3 .  e3  d3  . f#1  . . g1 . . ",2)
-play("usb","b2",1)
-play("usb","d2",2)
-
-stop("kick")
-play("kick",er(2),1)
-play("kick",er_add(er(2),rot(er(1),3)),2)
-stop("hh")
-play("hh",er_sub(er(13),er(4)),1)
-
-stop("clap")
-play("clap",rot(er(2),4),1)
-play("clap",rot(er(1),4),2)
-
 
 stop("crow")
-crow.output[2].action="{ to(10,0),to(0,0.07) }"; crow.output[2]()
-play("crow","d5 b d b d g b d d5  b d d5 b b g g",1)
-play("crow","b5 d f#5 b d b f#6 d",2)
-play("crow","f#5 a5 c#6 c# a c#5 f# a",3)
-play("crow","a5 c# e c# e5 e a6 c# ",4)
+crow.output[2].action="{ to(10,0),to(0,0.07) }";crow.output[2]()
+play("crow",shufexpand("d5 b4 g5",16),1)
 
-
-crow.output[2].action="{ to(10,2),to(0,6) }"; crow.output[2]()
-crow.output[3].action="lfo(3.1415,10)"; crow.output[3]()
+crow.output[2].action="{ to(10,2),to(0,6) }";crow.output[2]()
+crow.output[3].action="lfo(3.1415,10)";crow.output[3]()
 stop("crow")
 ta:expand("crow",8)
 play("crow","d3",1)
 play("crow","f#3",3)
 play("crow","a3",5)
 play("crow","e4",7)
-play("crow","b2",9)
-play("crow","c#4",10)
-play("crow","e4",12)
-play("crow","a3",14)
-
-tapestop()
-tapestart()
-tapebreak()
-e.bb_amp(0.7)
+play("crow","e4",8)
 
 e.bb_load("/home/we/dust/audio/live/breakbeat168bpm.wav",clock.get_tempo(),168)
 e.bb_load("/home/we/dust/audio/live/breakbeat_165bpm.wav",clock.get_tempo(),165)
@@ -158,33 +122,5 @@ e.bb_load("/home/we/dust/audio/breakbeat/bpm165/beats8_bpm165_Rope_Break_165_PL.
 e.bb_load("/home/we/dust/audio/breakbeat/bpm165/beats8_bpm165_Absorb_Break_165_PL.wav",clock.get_tempo(),165)
 e.bb_amp(0.0)
 e.bb_amp(0)
-play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%32/32) end",4))
-play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
-play("bbb",er("if math.random()<0.1 then; v=math.random(); e.bb_break(v,v+math.random()/40+0.01) end",4),1)
-ta:rm("bb")
-juststop()
-juststart()
 
-ta:rm("kick")
-ta:rm("hh")
-play("hh",er("hh:hit()",6),1)
-play("hh",sub(er("hh:hit()",15),er("hh:hit()",4)),2)
-play("hh",sub(er("hh:hit()",15),er("hh:hit()",2)),3)
-
-kick.patch.distAmt=5; kick.patch.oscDcy=500
-kick.patch.level=0; hh.patch.level=2
-e.bl()
-
-juststop()
-juststart()
-
-play("drone",sound("a3","e.d_midi(<m>)"),2)
-play("drone",sound("e4","e.d_midi(<m>)"),3)
-play("drone",sound("d4","e.d_midi(<m>)"),4)
-
-e.bb_load("/home/we/dust/code/gatherum/data/breakbeats_160bpm2_4beats.wav",clock.get_tempo(),160)
-e.bb_amp(0.2)
-ta:rm("bb")
-play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
-ta:rm("bbb")
-play("bbb",er("if math.random()<0.4 then; v=math.random(); e.bb_break(v,v+math.random()/40+0.01) end",4),1)
+nature(1.0)
