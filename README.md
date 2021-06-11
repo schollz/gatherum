@@ -32,12 +32,13 @@ lines from a norns script can be quickly and easily run using vim.
 to use with vim, first download wscat - a utility for piping commands to a websocket server (maiden).
 
 ```
-wget https://... 
-chmod +x
+wget https://github.com/schollz/wscat/releases/download/binaries/wscat
+chmod +x wscat
 sudo mv wscat /usr/local/bin/
 ```
 
-then you can edit your `.vimrc` file to include these lines:
+then you can edit your `.vimrc` file to include these lines which will automatically run
+the current selected line when you press <kbd>ctl</kbd>+<kbd>c</kbd>:
 
 ```vim
 set underline
