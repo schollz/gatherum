@@ -22,8 +22,6 @@ function init()
   local patches=patches_:new()
   local patches_loaded=patches:load("/home/we/dust/data/supertonic/presets/default.mtpreset")
   kick=drummer:new({id=1})
-  kick.patch.oscDcy=500
-  kick.patch.level=5
   sd=drummer:new({id=2})
   hh=drummer:new({id=3})
   oh=drummer:new({id=4})
@@ -33,7 +31,11 @@ function init()
   hh:update_patch_manually(patches_loaded[3])
   oh:update_patch_manually(patches_loaded[4])
   clap:update_patch_manually(patches_loaded[5])
-
+  kick.patch.oscDcy=500
+  kick.patch.level=-1
+  hh.patch.level=1
+  clap.patch.level=0
+  
   -- scheduling
   sched=lattice:new{
     ppqn=16
@@ -114,7 +116,9 @@ function measures(name,num)
   ta:expand(name,num)
 end
 
-
+function cclfo(name,ccnum,period,slo,shi)
+  ta:add(name..ccnum,er(string.format('mp:cc("%s",%d,lfo(%2.2f,%d,%d))',name,ccnum,period,slo,shi),12),1)
+end
 
 function play(name,notes,i)
   if name=="drone" then

@@ -3,7 +3,7 @@
 -- inoremap <C-c> <esc>:silent.w !wscat<enter>i
 -- vim run  :silent.w !wscat
 
-norns.script.load("code/tuner/tuner.lua"); crow.output[1].volts=3 -- A3
+norns.script.load("code/tuner/tuner.lua"); crow.output[3].volts=0;crow.output[1].volts=3 -- A3
 norns.script.load("code/gatherum/live.lua")
 
 nature(0.0)
@@ -15,8 +15,9 @@ tapestart()
 -- closer
 params:set("clock_tempo",120)
 
+e.bl_pan(2)
 e.s_load(1,"/home/we/dust/audio/live/closer.wav"); 
-e.s_amp(1,1.2);
+e.s_amp(1,1.0);
 e.s_amp(1,0); 
 e.s_mov(1,3/28)
 e.s_mov(1,26/28)
@@ -46,15 +47,15 @@ play("crow","ab4 ab4 bb3 eb3 ab eb bb bb3 eb ab eb db bb ab eb bb ",1)
 crow.output[2].action="{ to(10,0),to(0,0.2) }"; crow.output[2]()
 
 stop("op1")
-ta:add("op1cc1",er('mp:cc("op1",1,lfo(11,60,80))',12),1)
-ta:add("op1cc4",er('mp:cc("op1",4,lfo(3,10,60))',12),1)
+cclfo("op1",1,11,60,80)
+cclfo("op1",4,3,10,60)
 play("op1","bb4 bb3 eb4 ab4 eb4 db4 bb4 ab bb4 bb3 eb4 ab4 eb4 db4 bb4 ab",1)
 play("op1","gb4 db4 bb4 db4 bb4 gb4 gb4 db4 bb4 db4 bb4 ab4 bb4 ab4 gb4 eb4",2)
 
 stop("bou")
-ta:add("shcc",er('mp:cc("bou",26,lfo(7.1,0,127))',12),1)
-ta:add("shcc2",er('mp:cc("bou",19,lfo(7.2,0,127))',12),1)
-ta:add("shcc3",er('mp:cc("bou",15,lfo(7.3,0,127))',12),1)
+cclfo("bou",26,7,0,127)
+cclfo("bou",19,8,0,127)
+cclfo("bou",15,9,0,127)
 play("bou","Abm/Eb:3",1)
 play("bou","E:3",2)
 play("bou","Gb/Db:3",3)
@@ -64,11 +65,6 @@ play("bou","E:3",6)
 play("bou","Gb:3",7)
 play("bou","Db/F:3",8)
 
-stop("drone")
-e.d_amp(0.1)
-play("drone","eb5",1)
-play("drone","bb5",5)
-play("drone","db4",8)
 
 stop("usb")
 play("usb","ab1 ab ab . ab  . eb ab ab1 ab ab . ab  . eb ab",1)
@@ -81,13 +77,16 @@ e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break_pult_120.wav",clock.get_tempo(),120)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_rb_drum_loop_break_west_120.wav",clock.get_tempo(),120)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm120/beats8_bpm120_adt_120_drum_break_vinylised.wav",clock.get_tempo(),120)
-e.bb_amp(1.0)
+e.bb_amp(0.5)
 e.bb_amp(0.0)
 ta:rm("bb")
-play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
+play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%32/32) end",4))
+ta:rm("bbr")
+play("bbr",er("if math.random()<0.2 then e.bb_rev(1) end",5))
+e.bb_rev(1)
 
 clock.run(function() clock.sleep(1); tapestop(); clock.sleep(3); tapestart() end)
-clock.run(function() clock.sleep(1); tapebreak() clock.sleep(4); tapebreak() end)
+clock.run(function() clock.sleep(1); tapebreak() clock.sleep(1); tapebreak() end)
 tapestop()
 tapestart()
 
@@ -125,14 +124,18 @@ play("usb","c1 c g c c a c1 a",4)
 
 e.bb_amp(0.4)
 play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
-play("bbb",er("if math.random()<0.1 then; v=math.random(); e.bb_break(v,v+math.random()/40+0.01) end",4),1)
+play("bbb",er("if math.random()<0.4 then; v=math.random(); e.bb_break(v,v+math.random()/40+0.01) end",5),1)
 
 -- tock
-e.s_load(1,"/home/we/dust/audio/ladadadida.wav"); 
-e.s_amp(1,0.5)
 params:set("clock_tempo",168)
 sched:start()
 sched:stop()
+
+e.s_load(1,"/home/we/dust/audio/ladadadida.wav"); 
+play("la",er("engine.s_mov(1,0)",1),1)
+ta:expand("la",8)
+e.s_amp(1,0.2)
+e.s_amp(1,0.0)
 
 nature(1.0)
 e.s_amp(1,0)
@@ -165,17 +168,14 @@ play("usb","b2",1)
 play("usb","d2",2)
 
 stop("kick")
-play("kick",er(1),1)
+play("kick",er(2),1)
 play("kick",er_add(er(2),rot(er(1),3)),2)
-kick.patch.level=-1
 stop("hh")
 play("hh",er_sub(er(13),er(4)),1)
-hh.patch.level=1
 
 stop("clap")
 play("clap",rot(er(2),4),1)
 play("clap",rot(er(1),4),2)
-clap.patch.level=0
 
 
 stop("crow")
@@ -204,18 +204,18 @@ tapestart()
 tapebreak()
 e.bb_amp(0.7)
 
-e.bb_load("/home/we/dust/audio/breakbeat/breakbeat_168bpm_4beats.wav",clock.get_tempo(),168)
 e.bb_load("/home/we/dust/audio/live/breakbeat168bpm.wav",clock.get_tempo(),168)
 e.bb_load("/home/we/dust/audio/live/breakbeat_165bpm.wav",clock.get_tempo(),165)
+e.bb_load("/home/we/dust/audio/breakbeat/breakbeat_168bpm_4beats.wav",clock.get_tempo(),168)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm165/beats8_bpm165_Duplex_Break_165_PL.wav",clock.get_tempo(),165)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm165/beats8_bpm165_Rope_Break_165_PL.wav",clock.get_tempo(),165)
 e.bb_load("/home/we/dust/audio/breakbeat/bpm165/beats8_bpm165_Absorb_Break_165_PL.wav",clock.get_tempo(),165)
-e.bb_load("/home/we/dust/audio/ladadadida.wav",clock.get_tempo(),clock.get_tempo())
-e.bb_amp(0.8)
+e.bb_amp(0.0)
 e.bb_amp(0)
+play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%32/32) end",4))
 play("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
 play("bbb",er("if math.random()<0.1 then; v=math.random(); e.bb_break(v,v+math.random()/40+0.01) end",4),1)
-
+ta:rm("bb")
 juststop()
 juststart()
 

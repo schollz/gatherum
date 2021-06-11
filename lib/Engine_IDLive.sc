@@ -27,25 +27,25 @@ Engine_IDLive : CroneEngine {
     alloc {
         // IDLive specific v0.0.1
         // keys
-        SynthDef("defKeys",{
-                arg amp=0.5,bufnum=0,t_trig=1,start=0,out=0;
-                var snd,env;
-                env=EnvGen.kr(Env(levels:[0,1,1,0],times:[0.01,0.4,0.1]),gate:t_trig);
-                snd = env*PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),1,start*BufFrames.kr(bufnum),loop:1);
-                snd = snd+CombC.ar(snd,0.5,0.5,3);
-                Out.ar(0,snd);
-        }).add;
+        // SynthDef("defKeys",{
+        //         arg amp=0.5,bufnum=0,t_trig=1,start=0,out=0;
+        //         var snd,env;
+        //         env=EnvGen.kr(Env(levels:[0,1,1,0],times:[0.01,0.4,0.1]),gate:t_trig);
+        //         snd = env*PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),1,start*BufFrames.kr(bufnum),loop:1);
+        //         snd = snd+CombC.ar(snd,0.5,0.5,3);
+        //         Out.ar(0,snd);
+        // }).add;
 
-        context.server.sync;
+        // context.server.sync;
 
-        bufKeys=Buffer.read(context.server,"/home/we/dust/audio/keys.wav",action:{
-            synKeys=Synth("defKeys",[\bufnum,bufKeys],context.xg);
-        });
+        // bufKeys=Buffer.read(context.server,"/home/we/dust/audio/keys.wav",action:{
+        //     synKeys=Synth("defKeys",[\bufnum,bufKeys],context.xg);
+        // });
 
-        OSCFunc({ arg msg, time, addr, recvPort; 
-            [msg, time, addr, recvPort].postln; 
-            synKeys.set(\t_trig,1);
-        }, '/keystroke');
+        // OSCFunc({ arg msg, time, addr, recvPort; 
+        //     [msg, time, addr, recvPort].postln; 
+        //     synKeys.set(\t_trig,1);
+        // }, '/keystroke');
 
         // break live
         mainBus=Bus.audio(context.server,2);
@@ -63,7 +63,7 @@ Engine_IDLive : CroneEngine {
 
         
         SynthDef("defBreaklivePlay", {
-            arg amp=1, t_trig=0, bpm=140,bufnum, rate=1,ampmin=0, in;
+            arg amp=1, t_trig=0, bpm=140,bufnum, rate=1,ampmin=0, in,panRate=0;
             var timer, pos, start, end, snd, aOrB, crossfade, mainamp;
             aOrB=ToggleFF.kr(t_trig);
             crossfade=Lag.ar(K2A.ar(aOrB),0.5);
@@ -96,6 +96,10 @@ Engine_IDLive : CroneEngine {
             synBreaklivePlay.set(\rate,msg[1])
         });
 
+        this.addCommand("bl_pan","f", { arg msg;
+            synBreaklivePlay.set(\panRate,msg[1])
+        });
+
 
         this.addCommand("bl_bpm","f", { arg msg;
             synBreaklivePlay.set(\bpm,msg[1])
@@ -112,7 +116,7 @@ Engine_IDLive : CroneEngine {
         });
         synSample=Array.fill(4,{arg i;{
                 arg amp=0,bufnum=0,t_trig=1,start=0,out=0;
-                Out.ar(out,PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),t_trig,start*BufFrames.kr(bufnum),loop:1)*VarLag.kr(amp,20,warp:\linear));
+                Out.ar(out,PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),t_trig,start*BufFrames.kr(bufnum),loop:1)*VarLag.kr(amp,10,warp:\linear));
             }.play(target:context.xg);
         });
 
@@ -227,6 +231,10 @@ Engine_IDLive : CroneEngine {
 
         this.addCommand("bb_sync","f", {arg msg;
             synBreakbeat.set(\t_trig,1,\reset,msg[1],\start,0,\end,1,\rate,1,\loops,1000);
+        });
+
+        this.addCommand("bb_rev","f", {arg msg;
+            synBreakbeat.set(\rate,-1);
         });
 
         this.addCommand("bb_break","ff", {arg msg;
