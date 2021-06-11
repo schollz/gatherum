@@ -51,7 +51,7 @@ end
   })
 
   -- add syncing for drums
-  ta:add("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
+  -- ta:add("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
   -- start scheduler
   sched:start()
 end
@@ -110,23 +110,13 @@ function nature(vol)
   end
 end
 
-function rename(name)
-  if name:find("ge")==1 then
-    name="usb"
-  elseif name:find("sh")==1 then
-    name="bou"
-  elseif name:find("op")==1 then
-    name="op1"
-  end
-  return name
+function measures(name,num)
+  ta:expand(name,num)
 end
 
-function measures(name,num)
-  ta:expand(rename(name),num)
-end
+
 
 function play(name,notes,i)
-  name=rename(name)
   if name=="drone" then
     ta:add(name,sound(notes,"e.d_midi(<m>)"),i)
   elseif name=="pp" then
@@ -148,7 +138,6 @@ function play(name,notes,i)
 end
 
 function stop(name)
-  name=rename(name)
   if mp:ismidi(name) then
     mp:off(name,-1)
   end

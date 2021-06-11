@@ -1,5 +1,5 @@
 function lfo(period,dlo,dhi)
-  local m=math.sin(2*math.pi*ct()/period)
+  local m=math.sin(2*math.pi*os.time2()/period)
   return util.linlin(-1,1,dlo,dhi,m)
 end
 

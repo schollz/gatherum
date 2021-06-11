@@ -16,6 +16,8 @@ Engine_IDLive : CroneEngine {
     var mainBus;
     var synSample;
     var bufSample;
+    var synKeys;
+    var bufKeys;
     // IDLive ^
 
     *new { arg context, doneCallback;
@@ -24,6 +26,27 @@ Engine_IDLive : CroneEngine {
 
     alloc {
         // IDLive specific v0.0.1
+        // keys
+        SynthDef("defKeys",{
+                arg amp=0.5,bufnum=0,t_trig=1,start=0,out=0;
+                var snd,env;
+                env=EnvGen.kr(Env(levels:[0,1,1,0],times:[0.01,0.4,0.1]),gate:t_trig);
+                snd = env*PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),1,start*BufFrames.kr(bufnum),loop:1);
+                snd = snd+CombC.ar(snd,0.5,0.5,3);
+                Out.ar(0,snd);
+        }).add;
+
+        context.server.sync;
+
+        bufKeys=Buffer.read(context.server,"/home/we/dust/audio/keys.wav",action:{
+            synKeys=Synth("defKeys",[\bufnum,bufKeys],context.xg);
+        });
+
+        OSCFunc({ arg msg, time, addr, recvPort; 
+            [msg, time, addr, recvPort].postln; 
+            synKeys.set(\t_trig,1);
+        }, '/keystroke');
+
         // break live
         mainBus=Bus.audio(context.server,2);
 
@@ -35,6 +58,8 @@ Engine_IDLive : CroneEngine {
             arg bufnum, in;
             RecordBuf.ar(SoundIn.ar([0,1])+In.ar(in,2),bufnum);
         }).add;
+
+
 
         
         SynthDef("defBreaklivePlay", {
@@ -460,5 +485,7 @@ Engine_IDLive : CroneEngine {
         mainBus.free;
         4.do({arg i; bufSample[i].free});
         4.do({arg i; synSample[i].free});
+        synKeys.free;
+        bufKeys.free;
     }
 }
