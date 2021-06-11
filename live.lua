@@ -35,7 +35,7 @@ function init()
   kick.patch.level=-1
   hh.patch.level=1
   clap.patch.level=0
-  
+
   -- scheduling
   sched=lattice:new{
     ppqn=16
@@ -45,9 +45,9 @@ function init()
     action=function(t)
       ta:step()
       redrawer=redrawer+1
-      if redrawer%10==0 then 
-	redraw()
-end
+      if redrawer%10==0 then
+        redraw()
+      end
     end,
     division=1/16,
   })
@@ -129,9 +129,9 @@ function play(name,notes,i)
     ta:add(name,sound(notes,'crow.output[1].volts=<v>;crow.output[2]()'),i)
   elseif name=="kick" or name=="hh" or name=="clap" or name=="sd" or name=="oh" then
     for i,v in ipairs(notes) do
-    	if v~="" then
-    		notes[i]=name..":hit()"
-    	end
+      if v~="" then
+        notes[i]=name..":hit()"
+      end
     end
     ta:add(name,notes,i)
   elseif mp:ismidi(name) then
@@ -168,11 +168,11 @@ end
 function spsh(s,num)
   local t=string.split(s)
   if num==nil then
-          num=16
+    num=16
   end
   local t2={}
   for i=1,num do
-        table.insert(t2,t[math.random(#t)])
+    table.insert(t2,t[math.random(#t)])
   end
   return table.concat(t2," ")
 end
