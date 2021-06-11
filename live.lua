@@ -165,3 +165,15 @@ function tapestart()
   end)
 end
 
+function spsh(s,num)
+  local t=string.split(s)
+  if num==nil then
+          num=16
+  end
+  local t2={}
+  for i=1,num do
+        table.insert(t2,t[math.random(#t)])
+  end
+  return table.concat(t2," ")
+end
+
