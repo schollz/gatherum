@@ -165,7 +165,7 @@ function tapestart()
   end)
 end
 
-function spsh(s,num)
+function shufexpand(s,num)
   local t=string.split(s)
   if num==nil then
     num=16
