@@ -10,7 +10,7 @@ ta=timeauthority_:new()
 lattice=require("lattice")
 midipal_=include("gatherum/lib/midipal")
 mp=midipal_:new()
-
+livefolder="/home/we/dust/audio/live/"
 
 e=engine
 last_command=""
@@ -58,7 +58,7 @@ cclfo("op1",4,3,10,60)
 cclfo("bou",26,7,0,127)
 cclfo("bou",19,8,0,127)
 cclfo("bou",15,9,0,127)
-ta:add("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%32/32) end",4))
+ta:add("bb",er("if math.random()<0.5 then e.bsync((<sn>-1)%32/32) end",4))
   -- start scheduler
   sched:start()
 end
@@ -117,7 +117,7 @@ function nature(vol)
   end
 end
 
-function measures(name,num)
+function expand(name,num)
   ta:expand(name,num)
 end
 
@@ -170,7 +170,7 @@ function tapestart()
   end)
 end
 
-function shufexpand(s,num)
+function arp(s,num)
   local t=string.split(s)
   if num==nil then
     num=16
@@ -182,3 +182,7 @@ function shufexpand(s,num)
   return table.concat(t2," ")
 end
 
+
+function wav(s)
+  return "/home/we/dust/audio/live/"..s..".wav"
+end

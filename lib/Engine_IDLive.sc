@@ -27,25 +27,30 @@ Engine_IDLive : CroneEngine {
     alloc {
         // IDLive specific v0.0.1
         // keys
-        // SynthDef("defKeys",{
-        //         arg amp=0.5,bufnum=0,t_trig=1,start=0,out=0;
-        //         var snd,env;
-        //         env=EnvGen.kr(Env(levels:[0,1,1,0],times:[0.01,0.4,0.1]),gate:t_trig);
-        //         snd = env*PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),1,start*BufFrames.kr(bufnum),loop:1);
-        //         snd = snd+CombC.ar(snd,0.5,0.5,3);
-        //         Out.ar(0,snd);
-        // }).add;
+        SynthDef("defKeys",{
+                arg amp=0.5,bufnum=0,t_trig=1,start=0,out=0;
+                var snd,env;
+                env=EnvGen.kr(Env(levels:[0,1,1,0],times:[0.01,0.4,0.1]),gate:t_trig);
+                snd = env*PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),1,start*BufFrames.kr(bufnum),loop:1);
+                snd = snd+CombC.ar(snd,0.5,0.5,3);
+                Out.ar(0,snd);
+        }).add;
 
-        // context.server.sync;
+        context.server.sync;
 
-        // bufKeys=Buffer.read(context.server,"/home/we/dust/audio/keys.wav",action:{
-        //     synKeys=Synth("defKeys",[\bufnum,bufKeys],context.xg);
-        // });
+        bufKeys=Buffer.read(context.server,"/home/we/dust/audio/keys.wav",action:{
+            synKeys=Synth("defKeys",[\bufnum,bufKeys],context.xg);
+        });
 
-        // OSCFunc({ arg msg, time, addr, recvPort; 
-        //     [msg, time, addr, recvPort].postln; 
-        //     synKeys.set(\t_trig,1);
-        // }, '/keystroke');
+        OSCFunc({ arg msg, time, addr, recvPort; 
+            [msg, time, addr, recvPort].postln; 
+            synKeys.set(\t_trig,1);
+        }, '/keystroke');
+
+
+        this.addCommand("keys","f", { arg msg;
+            synBreaklivePlay.set(\amp,msg[1])
+        });
 
         // break live
         mainBus=Bus.audio(context.server,2);
@@ -120,7 +125,7 @@ Engine_IDLive : CroneEngine {
             }.play(target:context.xg);
         });
 
-        this.addCommand("s_load","is", { arg msg;
+        this.addCommand("sload","is", { arg msg;
             bufSample[msg[1]-1].free;
             ("loading "++msg[2]).postln;
             bufSample[msg[1]-1] = Buffer.read(context.server,msg[2],action:{
@@ -129,11 +134,11 @@ Engine_IDLive : CroneEngine {
             });
         });
         
-	   this.addCommand("s_amp","if", { arg msg;
+	   this.addCommand("samp","if", { arg msg;
             synSample[msg[1]-1].set(\amp,msg[2]);
         });
 
-        this.addCommand("s_mov","if", { arg msg;
+        this.addCommand("spos","if", { arg msg;
             synSample[msg[1]-1].set(\start,msg[2],\t_trig,1);
         });
 
@@ -215,29 +220,29 @@ Engine_IDLive : CroneEngine {
 
         context.server.sync;
 
-        this.addCommand("bb_load","sff", { arg msg;
+        this.addCommand("bload","s", { arg msg;
             bufBreakbeat.free;
             ("loading "++msg[1]).postln;
             bufBreakbeat = Buffer.read(context.server,msg[1],action:{
                 ("loaded "++msg[1]).postln;
-                synBreakbeat.set(\bufnum,bufBreakbeat.bufnum,\bpm,msg[2],\bpmsource,msg[3],\t_trig,1,\reset,msg[1],\start,0,\end,1,\rate,1,\loops,1000);
+                synBreakbeat.set(\bufnum,bufBreakbeat.bufnum,\t_trig,1,\reset,msg[1],\start,0,\end,1,\rate,1,\loops,1000);
             });
                        
         });
 
-        this.addCommand("bb_amp","f", { arg msg;
+        this.addCommand("bamp","f", { arg msg;
             synBreakbeat.set(\amp,msg[1])
         });
 
-        this.addCommand("bb_sync","f", {arg msg;
+        this.addCommand("bsync","f", {arg msg;
             synBreakbeat.set(\t_trig,1,\reset,msg[1],\start,0,\end,1,\rate,1,\loops,1000);
         });
 
-        this.addCommand("bb_rev","f", {arg msg;
+        this.addCommand("brev","f", {arg msg;
             synBreakbeat.set(\rate,-1);
         });
 
-        this.addCommand("bb_break","ff", {arg msg;
+        this.addCommand("bbreak","ff", {arg msg;
             synBreakbeat.set(\t_trig,1,\start,msg[1],\reset,msg[1],\end,msg[2],\loops,1000);
         });
 
