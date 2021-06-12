@@ -53,7 +53,12 @@ function init()
   })
 
   -- add syncing for drums
-  -- ta:add("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%64/64) end",4))
+cclfo("op1",1,11,60,80)
+cclfo("op1",4,3,10,60)
+cclfo("bou",26,7,0,127)
+cclfo("bou",19,8,0,127)
+cclfo("bou",15,9,0,127)
+ta:add("bb",er("if math.random()<0.5 then e.bb_sync((<sn>-1)%32/32) end",4))
   -- start scheduler
   sched:start()
 end
