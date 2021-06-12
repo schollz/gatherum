@@ -100,9 +100,9 @@ end
 local naturevol=-1
 function nature(vol)
   if naturevol<0 then
-    e.s_load(2,"/home/we/dust/audio/field/birds_eating.wav")
-    e.s_load(3,"/home/we/dust/audio/field/birds_morning.wav")
-    e.s_load(4,"/home/we/dust/audio/field/ocean_waves_puget_sound.wav");
+    e.sload(2,"/home/we/dust/audio/field/birds_eating.wav")
+    e.sload(3,"/home/we/dust/audio/field/birds_morning.wav")
+    e.sload(4,"/home/we/dust/audio/field/ocean_waves_puget_sound.wav");
   end
   if naturevol>0 then
     naturevol=0
@@ -113,7 +113,7 @@ function nature(vol)
     naturevol=vol
   end
   for i=2,4 do
-    e.s_amp(i,6*vol/(i*i))
+    e.samp(i,6*vol/(i*i))
   end
 end
 

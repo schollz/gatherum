@@ -30,9 +30,9 @@ Engine_IDLive : CroneEngine {
         SynthDef("defKeys",{
                 arg amp=0.5,bufnum=0,t_trig=1,start=0,out=0;
                 var snd,env;
-                env=EnvGen.kr(Env(levels:[0,1,1,0],times:[0.01,0.4,0.1]),gate:t_trig);
+                env=EnvGen.kr(Env(levels:[0,1,1,0],times:[0.01,0.2,0.05]),gate:t_trig);
                 snd = env*PlayBuf.ar(2,bufnum,BufRateScale.kr(bufnum),1,start*BufFrames.kr(bufnum),loop:1);
-                snd = snd+CombC.ar(snd,0.5,0.5,3);
+//                snd = snd+CombC.ar(snd,0.5,0.5,3);
                 Out.ar(0,snd);
         }).add;
 
