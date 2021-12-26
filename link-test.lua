@@ -25,6 +25,13 @@ function key(k,z)
     lattice:hard_restart()
   end
 end
+function clock.transport.start()
+  print("we begin")
+end
+
+function clock.transport.stop()
+  print("we end")
+end
 
 function redraw()
   screen.clear()
