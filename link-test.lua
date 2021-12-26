@@ -6,10 +6,10 @@ function init()
   lattice=lattice_:new()
   pattern=lattice:new_pattern{
     action=function(t)
-      beat=math.floor(t/96/4)+1
+      beat=math.floor(t/96)+1
       print(beat)
     end,
-    division=1,
+    division=1/4,
   }
   lattice:start()
   lattice:stop()
@@ -23,10 +23,19 @@ function init()
 end
 
 function key(k,z)
-  if z==1 then
-    lattice:hard_restart()
+  -- if z==1 then
+  --   lattice:hard_restart()
+  -- end
+  if z==0 then 
+    do return end 
+  end
+  if k==2 then 
+    clock.link.set_transport(false)
+  elseif k==3 then 
+    clock.link.set_transport(true)
   end
 end
+
 function clock.transport.start()
   print("we begin")
   lattice:hard_restart()
