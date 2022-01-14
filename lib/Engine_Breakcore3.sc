@@ -28,9 +28,9 @@ Engine_Breakcore3 : CroneEngine {
 
             snd=PlayBuf.ar(
                 numChannels:2,
-                bufnum:buf*BufRateScale.kr(bufnum),
+                bufnum:buf*BufRateScale.kr(buf),
                 rate:rate,
-                startPos:pos*BufFrames.kr(bufnum),
+                startPos:pos*BufFrames.kr(buf),
                 loop:1,
             );
 
