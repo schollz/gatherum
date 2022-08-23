@@ -28,9 +28,9 @@ Engine_Breakcore3 : CroneEngine {
 
             snd=PlayBuf.ar(
                 numChannels:2,
-                bufnum:buf*BufRateScale.kr(buf),
+                bufnum:buf*BufRateScale.ir(buf),
                 rate:rate,
-                startPos:pos*BufFrames.kr(buf),
+                startPos:pos*BufFrames.ir(buf),
                 loop:1,
             );
 
@@ -47,6 +47,10 @@ Engine_Breakcore3 : CroneEngine {
                 "loaded file".postln;
             });
                        
+        });
+
+        this.addCommand("freeall","", { arg msg;
+            context.server.freeAll();
         });
 
         this.addCommand("play","fffff", { arg msg;

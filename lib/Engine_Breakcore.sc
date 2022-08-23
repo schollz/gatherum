@@ -40,7 +40,7 @@ Engine_Breakcore : CroneEngine {
         synBreakcore = Synth("SynDefBreakcore",[
             \out,0,
             \bufnumtemp,breakBuffBreakcore;
-        ], context.xg);
+        ], context.server);
 
         context.server.sync;
 

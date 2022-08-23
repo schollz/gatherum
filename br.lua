@@ -8,9 +8,9 @@ function init()
   params:add{type="control",id="amp",name="amp",controlspec=controlspec.new(0,0.5,'lin',0,0,'amp',0.01/0.5),action=function(v)
     engine.bb_amp(v)
   end
-  }
-  engine.bb_load("/home/we/dust/code/gatherum/data/breakbeats_160bpm2_4beats.wav",160)
-  engine.bb_bpm(clock.get_tempo())
+}
+engine.bb_load("/home/we/dust/code/gatherum/data/breakbeats_160bpm2_4beats.wav",160)
+engine.bb_bpm(clock.get_tempo())
 end
 
 function enc(k,d)
